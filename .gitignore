@@ -1,0 +1,24 @@
+# weights, outputs and environments never go into the repo
+model-cache/
+hf/
+weights/
+out/
+deliver/
+logs/
+env_*/
+*.safetensors
+*.pth
+*.ckpt
+*.mp4
+*.png
+*.jpg
+*.wav
+*.m4a
+__pycache__/
+# android
+app/app/build/
+app/.gradle/
+app/local.properties
+*.apk
+*.keystore
+*.jks

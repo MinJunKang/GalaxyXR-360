@@ -1,0 +1,532 @@
+{
+ "forest_morning_p1": {
+  "image": "out/photo_src/forest_morning_p1.png",
+  "caption": "standing on a soft moss-covered forest floor in the middle of an ancient pine forest at sunrise; tall straight pine trunks with rough reddish-brown bark rise in every direction, thin white morning mist hangs between the trees, warm golden sunbeams slant through gaps in the dark green canopy and form clearly visible god rays, lush ferns and small white wildflowers cover the ground, dew drops sparkle on the moss, a narrow dirt trail winds away behind the viewer, a pale blue sky with a soft sunrise glow is visible through the treetops above",
+  "seed": 1000
+ },
+ "forest_morning_p2": {
+  "image": "out/photo_src/forest_morning_p2.png",
+  "caption": "the center of a bright sunlit birch forest clearing in early summer; slender white birch trunks with black markings form a ring around a meadow of tall green grass dotted with purple, yellow and white wildflowers, a weathered wooden bench stands at the edge of the clearing, fresh light green leaves glow translucent in the sun, white butterflies rest on the flowers, soft dappled shadows on the grass, a clear blue sky with a few soft white clouds is open above the clearing",
+  "seed": 1001
+ },
+ "bamboo_grove_p1": {
+  "image": "out/photo_src/bamboo_grove_p1.png",
+  "caption": "standing on a narrow path of flat grey stones deep inside a dense bamboo grove; thousands of tall smooth green bamboo stalks rise straight up on all sides and meet in a high rustling canopy of fine leaves, soft diffuse green light filters down, dry golden bamboo leaves lie scattered on the stones, a small moss-covered stone lantern stands beside the path, the path continues ahead and behind and disappears among the stalks, glimpses of bright overcast sky through the tops of the bamboo",
+  "seed": 1010
+ },
+ "bamboo_grove_p2": {
+  "image": "out/photo_src/bamboo_grove_p2.png",
+  "caption": "beside a small crystal clear stream in a quiet zen bamboo forest in the morning; smooth round stepping stones cross the shallow transparent water, vivid green moss covers the rocks along both banks, tall bamboo stalks surround the stream in every direction, a tiny arched wooden footbridge in the distance, a few fallen bamboo leaves float on the water, soft morning light with a light mist, a pale sky through the bamboo canopy above",
+  "seed": 1011
+ },
+ "lake_dawn_p1": {
+  "image": "out/photo_src/lake_dawn_p1.png",
+  "caption": "standing at the pebble shore of a perfectly calm mountain lake at dawn; the mirror-like water reflects snow-capped granite peaks and a pastel sky of pink, peach and lavender, dark green pine forests line the shores all around the lake, smooth round pebbles and a few large boulders at the water edge below, the first warm light just touches the highest summits, a fading crescent moon hangs in the sky, absolute stillness and silence",
+  "seed": 1020
+ },
+ "lake_dawn_p2": {
+  "image": "out/photo_src_final/lake_dawn_p2.png",
+  "caption": "a breathtaking alpine lake with crystal clear turquoise water at sunrise, a small wooden boathouse and a few red canoes at a wooden pier, dramatic snow-capped peaks reflected in the still water, pine forests on the shores, golden morning light",
+  "seed": 1021
+ },
+ "waterfall_p1": {
+  "image": "out/photo_src/waterfall_p1.png",
+  "caption": "standing on a flat wet rock beside a turquoise pool at the foot of a powerful tropical waterfall; white water plunges from a high cliff draped in hanging vines and pink orchids, fine spray creates a small rainbow in the sunlight, lush dense jungle with giant leaves, palms and tree ferns surrounds the pool on all sides, wet dark rocks and bright green moss below, sunlight breaks through the jungle canopy above",
+  "seed": 1030
+ },
+ "waterfall_p2": {
+  "image": "out/photo_src/waterfall_p2.png",
+  "caption": "deep inside a narrow mossy canyon with a tall ribbon waterfall falling down a sheer rock wall; every surface of the canyon walls is covered in vivid green moss and delicate ferns, the water lands in a shallow clear rocky pool and flows away as a small stream over wet glistening stones, fine mist hangs in the air, soft diffuse light pours in from the narrow opening of the canyon high above",
+  "seed": 1031
+ },
+ "flower_field_p1": {
+  "image": "out/photo_src/flower_field_p1.png",
+  "caption": "standing on a dirt row in the middle of an endless lavender field in provence at golden hour; perfectly straight rows of purple lavender stretch to the horizon in every direction, a lone stone farmhouse with a terracotta roof and a few tall cypress trees in the distance, soft rolling hills, warm orange sunlight, the sky glows gold near the horizon and fades to soft blue above, bees hover over the flowers",
+  "seed": 1040
+ },
+ "flower_field_p2": {
+  "image": "out/photo_src_final/flower_field_p2.png",
+  "caption": "a beautifully landscaped flower garden with curved beds of tulips, roses, lavender, cosmos, poppies and delphiniums in many colors, a winding gravel path, a white wooden gazebo, butterflies and a few birds, green hedges and trees around, a soft blue sky",
+  "seed": 1041
+ },
+ "cherry_blossom_p1": {
+  "image": "out/photo_src/cherry_blossom_p1.png",
+  "caption": "standing on a quiet path in the middle of a long tunnel of blooming cherry blossom trees in spring; thick branches heavy with soft pink and white blossoms arch overhead from both sides, the path ahead and behind is covered in a carpet of fallen pink petals, old dark gnarled trunks line the path, a gentle stream with a stone railing runs alongside, soft hazy spring sunlight, patches of pale blue sky through the blossoms",
+  "seed": 1050
+ },
+ "cherry_blossom_p2": {
+  "image": "out/photo_src/cherry_blossom_p2.png",
+  "caption": "in a traditional japanese garden in spring; a vermilion red arched wooden bridge crosses a calm pond with colorful orange and white koi, weeping cherry trees in full pink bloom hang over the water, a stone lantern, raked white gravel, neatly trimmed pine trees and mossy rocks around the pond, a small wooden tea house with a dark tiled roof behind, soft morning light, a clear sky",
+  "seed": 1051
+ },
+ "autumn_valley_p1": {
+  "image": "out/photo_src/autumn_valley_p1.png",
+  "caption": "standing on a hillside overlooking a deep mountain valley in peak autumn; forests of vivid red, orange and golden maple and ginkgo trees cover the slopes in every direction, a clear winding river reflects the colors in the valley bottom, layered blue mountain ridges in the distance, a carpet of fallen red leaves on the ground, crisp clear air, a bright blue sky with thin high clouds",
+  "seed": 1060
+ },
+ "autumn_valley_p2": {
+  "image": "out/photo_src/autumn_valley_p2.png",
+  "caption": "in the stone-paved courtyard of a traditional korean buddhist temple in autumn; wooden halls with colorful dancheong painted eaves and curved grey tiled roofs surround the courtyard, huge maple trees with blazing red leaves and a tall golden ginkgo tree, a weathered stone pagoda in the center, fallen red leaves scattered on the stones, forested mountains behind, soft warm afternoon sunlight",
+  "seed": 1061
+ },
+ "snow_cabin_p1": {
+  "image": "out/photo_src/snow_cabin_p1.png",
+  "caption": "standing in deep fresh snow in a quiet pine forest at dusk in front of a cozy log cabin; warm orange light glows from the small square windows, smoke curls from a stone chimney, thick snow lies on the roof and on the branches of the tall dark pines all around, a stack of firewood under the eaves, a wooden fence half buried in snow, footprints lead to the door, the sky is a deep twilight blue with the first stars",
+  "seed": 1070
+ },
+ "snow_cabin_p2": {
+  "image": "out/photo_src_final/snow_cabin_p2.png",
+  "caption": "close to a cozy wooden cabin with warmly glowing windows only a few meters away during gentle snowfall at blue hour, snow-covered roof and porch with a lantern, a stack of firewood, snowy pine trees around, a red fox in the snow nearby",
+  "seed": 1071
+ },
+ "rainy_window_p1": {
+  "image": "out/photo_src/rainy_window_p1.png",
+  "caption": "standing on a wet wooden boardwalk inside a lush temperate rainforest just after rain; giant ferns, moss-draped maple trees and huge old cedar trunks surround the boardwalk, every leaf glistens with water droplets, soft white fog drifts between the trees, small puddles on the boardwalk reflect the green, a gentle creek nearby, soft grey-green diffuse light, an overcast sky through the canopy",
+  "seed": 1080
+ },
+ "rainy_window_p2": {
+  "image": "out/photo_src/rainy_window_p2.png",
+  "caption": "inside a cozy victorian glass greenhouse during rain; tall arched glass panes in white painted iron frames all around and overhead, raindrops stream down the glass, the room is filled with lush tropical plants, palms, ferns, monstera and orchids in clay pots, a small wrought iron table with a steaming teapot, warm soft lamps, a grey rainy garden visible outside",
+  "seed": 1081
+ },
+ "aurora_p1": {
+  "image": "out/photo_src/aurora_p1.png",
+  "caption": "standing on the frozen shore of a snowy lake in the arctic night; huge green and violet aurora borealis curtains fill the whole sky overhead and in every direction, the aurora reflects in patches of clear black ice, snow-covered mountains and dark spruce forests surround the lake, the milky way and thousands of stars shine between the aurora bands, smooth untouched snow at the feet",
+  "seed": 1090
+ },
+ "aurora_p2": {
+  "image": "out/photo_src/aurora_p2.png",
+  "caption": "on a vast frozen tundra under a brilliant aurora; a single small tent glows warm orange from a lantern inside, ribbons of green aurora with pink edges swirl across the entire starry sky, flat snowy plains stretch to distant low hills in every direction, snow crystals sparkle on the ground, deep blue polar night",
+  "seed": 1091
+ },
+ "sunset_meadow_p1": {
+  "image": "out/photo_src/sunset_meadow_p1.png",
+  "caption": "standing in a wide green meadow on gentle hills at sunset; a single huge old oak tree with a broad spreading crown stands alone nearby, tall grass and small wildflowers all around, the sun is low on the horizon and the sky is painted in vivid orange, pink and purple with glowing clouds, long soft shadows across the grass, distant hills fading in warm haze behind",
+  "seed": 1100
+ },
+ "sunset_meadow_p2": {
+  "image": "out/photo_src/sunset_meadow_p2.png",
+  "caption": "on top of rolling hills covered in tall golden grass under a dramatic sunset; the grass glows amber in the low sun, layers of hills fade into the distance in every direction, huge sculpted clouds lit orange and crimson from below, a narrow footpath winds through the grass, the eastern sky behind turns deep blue",
+  "seed": 1101
+ },
+ "starry_night_p1": {
+  "image": "out/photo_src/starry_night_p1.png",
+  "caption": "standing on a rock ledge inside a quiet desert canyon at night; the bright milky way arches across the entire sky from horizon to horizon, thousands of stars and a faint green airglow, dark red sandstone cliffs and tall rock spires frame the sky on all sides, the canyon floor with pale sand and small desert shrubs below, absolute silence",
+  "seed": 1110
+ },
+ "starry_night_p2": {
+  "image": "out/photo_src/starry_night_p2.png",
+  "caption": "at the shore of a calm alpine lake on a clear moonless night; the starry sky and the milky way are perfectly mirrored in the still water, dark jagged mountain silhouettes surround the lake, a few tall pine trees on the shore, smooth stones at the water edge, the sky is deep navy and full of stars in every direction",
+  "seed": 1111
+ },
+ "hot_spring_p1": {
+  "image": "out/photo_src/hot_spring_p1.png",
+  "caption": "beside a natural steaming hot spring in a snowy mountain forest; a pool of milky turquoise water surrounded by smooth dark volcanic rocks capped with fresh snow, thick white steam rises into the cold air, snow-covered pine trees all around, snowy mountain slopes behind, soft overcast winter light, a few snowflakes falling",
+  "seed": 1120
+ },
+ "hot_spring_p2": {
+  "image": "out/photo_src/hot_spring_p2.png",
+  "caption": "inside a traditional japanese outdoor onsen at dusk; a rock-lined hot spring pool with steaming clear water, a wooden bathhouse with a tiled roof and paper lanterns glowing warm orange, tall bamboo fences, snow on the rocks and on the roofs, a bare maple tree, the sky is deep blue at dusk",
+  "seed": 1121
+ },
+ "fireflies_p1": {
+  "image": "out/photo_src/fireflies_p1.png",
+  "caption": "in a dark summer forest glade at night filled with thousands of glowing yellow-green fireflies; tall broadleaf trees surround the glade, soft grass and ferns below, the fireflies float at every height like tiny lanterns, faint moonlight filters through the leaves, a deep blue night sky with a few stars in the gap of the canopy",
+  "seed": 1130
+ },
+ "fireflies_p2": {
+  "image": "out/photo_src/fireflies_p2.png",
+  "caption": "beside a small moonlit stream in a forest at night; clear water flows over smooth stones and reflects the moon, glowing fireflies drift above the water and among the ferns on the banks, tall trees on both sides, soft silver moonlight, a full moon in the sky above",
+  "seed": 1131
+ },
+ "tropical_beach_p1": {
+  "image": "out/photo_src/tropical_beach_p1.png",
+  "caption": "standing on a pristine white sand beach of a tropical island; crystal clear turquoise water fades to deep blue toward the horizon, leaning coconut palm trees line the curved beach, a lush green jungle hill rises behind, small white waves lap the shore, a rope hammock hangs between two palms, bright midday sun, a few white clouds in a clear blue sky",
+  "seed": 1140
+ },
+ "tropical_beach_p2": {
+  "image": "out/photo_src/tropical_beach_p2.png",
+  "caption": "on the wooden deck of an overwater bungalow in a calm lagoon at sunset; thatched-roof bungalows on stilts form a curved line over shallow glassy turquoise water, a green volcanic island peak rises in the distance, the sun sets in orange and pink over the ocean, the deck has two wooden lounge chairs and a ladder into the water",
+  "seed": 1141
+ },
+ "cliff_coast_p1": {
+  "image": "out/photo_src/cliff_coast_p1.png",
+  "caption": "standing on a grassy clifftop above a wild ocean coast; dramatic dark rock sea cliffs drop into the deep blue sea, white waves crash on the rocks far below, a white and red lighthouse stands on the headland, seabirds glide on the wind, rolling green grassland and a small stone footpath behind, a dramatic sky with the sun breaking through big clouds",
+  "seed": 1150
+ },
+ "cliff_coast_p2": {
+  "image": "out/photo_src_final/cliff_coast_p2.png",
+  "caption": "standing on a grassy clifftop at sunset above towering sheer sea cliffs that drop straight into the ocean, the cliff faces glowing orange in the low sun, waves crashing white at their base far below, seabirds gliding along the cliff edge, the coastline of cliffs continuing into the distance",
+  "seed": 1151
+ },
+ "coral_reef_p1": {
+  "image": "out/photo_src/coral_reef_p1.png",
+  "caption": "underwater in a vibrant tropical coral reef in shallow clear water; colorful hard and soft corals in orange, purple, pink and yellow cover the sea floor in every direction, schools of small blue and yellow fish, a green sea turtle in the distance, white sand patches, bright sun rays and shimmering light caustics come down from the rippling silver surface above, deep blue water fades in the distance",
+  "seed": 1160
+ },
+ "coral_reef_p2": {
+  "image": "out/photo_src/coral_reef_p2.png",
+  "caption": "underwater in a reef garden of sea anemones; large soft anemones with swaying green and pink tentacles, orange and white clownfish hiding among them, purple sea fans and branching corals, a sandy bottom with small shells, clear turquoise water, sunlight dancing from above",
+  "seed": 1161
+ },
+ "kelp_forest_p1": {
+  "image": "out/photo_src/kelp_forest_p1.png",
+  "caption": "underwater inside a towering kelp forest; tall golden brown kelp stalks rise from the rocky bottom to the surface in every direction, bright sunlight beams pierce through the floating kelp canopy, small silver fish and bright orange fish swim between the stalks, rocks covered with purple sea urchins and orange starfish below, clear blue-green water",
+  "seed": 1170
+ },
+ "kelp_forest_p2": {
+  "image": "out/photo_src/kelp_forest_p2.png",
+  "caption": "underwater in a deep blue kelp forest with playful sea lions; long swaying kelp fronds, two sea lions gliding gracefully between them, bubbles, sunlight sparkling at the surface, a rocky reef with anemones below",
+  "seed": 1171
+ },
+ "whale_ocean_p1": {
+  "image": "out/photo_src/whale_ocean_p1.png",
+  "caption": "underwater in the deep blue open ocean far from land; a huge humpback whale glides gracefully at a distance with its long white pectoral fins spread, the water is clear deep blue fading to darkness below, bright rays of sunlight fan down from the rippling surface above, small particles float, a calm and vast space",
+  "seed": 1180
+ },
+ "whale_ocean_p2": {
+  "image": "out/photo_src_final/whale_ocean_p2.png",
+  "caption": "deep blue open ocean underwater with a large humpback whale swimming close to the viewer, its long white pectoral fins spread, sun rays from the surface above, a few fish around",
+  "seed": 1181
+ },
+ "jellyfish_p1": {
+  "image": "out/photo_src/jellyfish_p1.png",
+  "caption": "in the dark deep sea surrounded by glowing bioluminescent jellyfish; dozens of translucent jellyfish with glowing blue, pink and violet bells and long trailing tentacles float at different distances in every direction, tiny glowing plankton sparkles like stars, deep black-blue water",
+  "seed": 1190
+ },
+ "jellyfish_p2": {
+  "image": "out/photo_src_final/jellyfish_p2.png",
+  "caption": "completely underwater in a clear blue tropical sea, a large school of silver and blue fish swimming together in a swirling shape close to the viewer, a few bigger fish, soft sun rays from the surface above, a sandy sea floor with some corals below",
+  "seed": 1191
+ },
+ "sunken_ship_p1": {
+  "image": "out/photo_src/sunken_ship_p1.png",
+  "caption": "underwater on the sea floor next to a large old sunken wooden sailing ship; the broken hull is covered in coral, sponges and sea fans, two masts lean at an angle, schools of fish swim around the wreck, scattered barrels and a rusty anchor lie on the sand, blue-green water, sun rays from above",
+  "seed": 1200
+ },
+ "sunken_ship_p2": {
+  "image": "out/photo_src/sunken_ship_p2.png",
+  "caption": "underwater among ancient sunken stone ruins; tall carved marble columns and broken arches covered in seaweed and coral, a stone statue half buried in white sand, fish swimming through the arches, soft blue light filtering down from above",
+  "seed": 1201
+ },
+ "nebula_p1": {
+  "image": "out/photo_src/nebula_p1.png",
+  "caption": "floating in deep space inside a colorful nebula; huge glowing clouds of gas in purple, magenta, blue and teal surround the viewer in every direction, dark winding dust lanes cut through the glowing gas, bright young blue-white stars and sparkling star clusters are scattered through the clouds, faint distant spiral galaxies in the gaps, a sense of enormous scale and deep silence, no ground anywhere",
+  "seed": 1210
+ },
+ "nebula_p2": {
+  "image": "out/photo_src/nebula_p2.png",
+  "caption": "floating in a vast star field beside a glowing orange and red emission nebula shaped like towering pillars of gas and dust; the dark pillars are rimmed with bright light from hot young stars behind them, wisps of gas stream from their tips, thousands of stars of white, blue and gold in every direction, faint blue gas veils behind the viewer, deep black space above and below",
+  "seed": 1211
+ },
+ "earth_orbit_p1": {
+  "image": "out/photo_src/earth_orbit_p1.png",
+  "caption": "floating in low earth orbit above planet earth; the huge curved blue planet fills the lower half of the view with white swirling cloud systems, deep blue oceans and brown and green continents, the thin glowing blue atmosphere line along the horizon, the sun rising over the edge of the planet with a bright starburst, black space full of stars above and behind",
+  "seed": 1220
+ },
+ "earth_orbit_p2": {
+  "image": "out/photo_src/earth_orbit_p2.png",
+  "caption": "floating in orbit above the night side of earth; golden city lights trace the coastlines, rivers and continents like glowing webs, a green aurora curtain glows along the curved horizon, a thin orange airglow layer, tiny lightning flashes inside distant storm clouds, the milky way and countless stars fill the black sky above",
+  "seed": 1221
+ },
+ "moon_surface_p1": {
+  "image": "out/photo_src/moon_surface_p1.png",
+  "caption": "standing on the grey dusty surface of the moon; craters of all sizes, scattered boulders and fine regolith with astronaut footprints in every direction, harsh white sunlight and razor sharp black shadows, a low rugged crater rim on the horizon, the blue and white planet earth hangs in the pitch black sky, countless stars, absolute stillness",
+  "seed": 1230
+ },
+ "moon_surface_p2": {
+  "image": "out/photo_src/moon_surface_p2.png",
+  "caption": "at a futuristic lunar research base on the moon; white domed habitats with round windows glowing softly, connecting tunnels, large solar panel arrays angled toward the sun, a landing pad with a small lander, a six-wheeled rover parked nearby, tire tracks in the grey dust, the cratered landscape all around, earth rising in the black sky",
+  "seed": 1231
+ },
+ "mars_p1": {
+  "image": "out/photo_src_final/mars_p1.png",
+  "caption": "a vivid imaginative alien world with layered red and orange canyons, a winding river of glowing turquoise water, crystal formations along the banks, two moons and a ringed planet in a colorful sunset sky, flocks of winged creatures flying, rich and lively",
+  "seed": 1240
+ },
+ "mars_p2": {
+  "image": "out/photo_src/mars_p2.png",
+  "caption": "standing at the bottom of a deep canyon on mars; towering cliffs of layered red, orange and ochre rock rise on both sides with eroded ledges and fallen boulders, a dry ancient riverbed of smooth rounded pebbles runs along the canyon floor, fine red dust everywhere, a thin strip of pale hazy pink sky above",
+  "seed": 1241
+ },
+ "saturn_rings_p1": {
+  "image": "out/photo_src/saturn_rings_p1.png",
+  "caption": "standing on an icy moon of saturn; a cracked white and pale blue ice surface with long ridges, frost and small ice spires stretches in every direction, the giant golden planet saturn with its huge bright banded rings fills a large part of the black sky, stars, a distant small sun casting long blue shadows on the ice",
+  "seed": 1250
+ },
+ "saturn_rings_p2": {
+  "image": "out/photo_src/saturn_rings_p2.png",
+  "caption": "floating inside the rings of saturn; countless chunks of ice and rock of all sizes, from pebbles to house-sized boulders, float around the viewer and sparkle in the sunlight, the rings stretch away to the horizon as a bright flat band in both directions, the giant golden saturn fills part of the sky in the distance",
+  "seed": 1251
+ },
+ "alien_planet_p1": {
+  "image": "out/photo_src/alien_planet_p1.png",
+  "caption": "standing on the surface of an exotic alien planet at twilight; strange tall plants with spiral stems and glowing cyan and magenta bulbs, smooth sculpted purple rock formations, a shallow lake that glows turquoise from within, two large moons and a ringed planet hang in a violet sky, glowing alien flora covers the ground in every direction",
+  "seed": 1260
+ },
+ "alien_planet_p2": {
+  "image": "out/photo_src/alien_planet_p2.png",
+  "caption": "on an alien landscape with giant floating rocks; huge rock islands covered in strange blue vegetation hover in the air with long vines hanging below them, a turquoise sky with a giant ringed planet, tall translucent crystal formations and smooth white stones on the ground, a strange orange sun low on the horizon casting long shadows",
+  "seed": 1261
+ },
+ "milky_way_p1": {
+  "image": "out/photo_src/milky_way_p1.png",
+  "caption": "floating in deep space with the full milky way galaxy band stretching across the whole sphere; countless stars of white, blue and gold, the bright glowing galactic core with dark dust lanes, faint colorful pink and blue nebulae along the band, distant globular star clusters, absolute black space around, a feeling of infinite depth and peace",
+  "seed": 1270
+ },
+ "milky_way_p2": {
+  "image": "out/photo_src/milky_way_p2.png",
+  "caption": "floating inside the milky way galaxy between its spiral arms; bright arms of stars and pink nebulae curve around the viewer in sweeping arcs, dense glittering star clusters, the glowing yellow galactic bulge in the distance, dark dust clouds silhouetted against the starlight, stars in every direction including above and below",
+  "seed": 1271
+ },
+ "solar_system_p1": {
+  "image": "out/photo_src/solar_system_p1.png",
+  "caption": "floating in space inside the solar system; the bright glowing sun shines in the distance with a soft corona and gentle lens glow, the planets are visible around it, giant jupiter with colorful cloud bands and saturn with its bright rings appear large in the foreground, small blue earth and red mars further away, the asteroid belt as a faint glittering band, black starry space all around",
+  "seed": 1280
+ },
+ "solar_system_p2": {
+  "image": "out/photo_src/solar_system_p2.png",
+  "caption": "floating near a small grey rocky moon of jupiter; the gigantic planet jupiter fills a large part of the sky with swirling orange, white and brown cloud bands and the great red spot, its other moons appear as small discs nearby, the distant sun is a bright point, black space with stars, the cratered moon surface below",
+  "seed": 1281
+ },
+ "space_station_p1": {
+  "image": "out/photo_src/space_station_p1.png",
+  "caption": "inside a futuristic space station observation deck; a huge curved panoramic window shows planet earth and the stars, sleek white curved walls with soft blue ambient light strips, comfortable white lounge seats, potted green plants, a polished floor reflecting the light, floating holographic displays with star maps, a calm and clean atmosphere",
+  "seed": 1290
+ },
+ "space_station_p2": {
+  "image": "out/photo_src_final/space_station_p2.png",
+  "caption": "a massive original space battle above a blue planet, large sleek white-and-grey battlecruisers of our own design exchanging glowing energy beams, swarms of small fighter ships with engine trails, explosions and debris, a moon and nebula in the background, epic cinematic scale, no logos",
+  "seed": 1291
+ },
+ "cyber_city_p1": {
+  "image": "out/photo_src_final/cyber_city_p1.png",
+  "caption": "a dense gritty cyberpunk megacity street at night, crisp and sharp, stacked buildings covered in bright pink, cyan and violet neon signs and huge holographic advertisements, tangled cables, steam from vents, rain-soaked reflective street, people with glowing umbrellas, flying vehicles between the towers",
+  "seed": 1300
+ },
+ "cyber_city_p2": {
+  "image": "out/photo_src/cyber_city_p2.png",
+  "caption": "on a futuristic rooftop terrace at night overlooking a vast neon city; glowing skyscrapers stretch in every direction, flying cars leave red and white light trails between the towers, a giant translucent hologram of a koi fish floats over the city, a small rooftop garden with railings, benches and potted trees, a dark purple sky with low clouds lit from below",
+  "seed": 1301
+ },
+ "future_garden_p1": {
+  "image": "out/photo_src/future_garden_p1.png",
+  "caption": "in a bright utopian futuristic city; elegant white curved towers covered in lush vertical gardens and small waterfalls, green terraces with trees, glass sky bridges between the towers, clean walkways lined with trees and benches, a calm reflecting lake, small white drones in the air, a bright blue sky with soft clouds",
+  "seed": 1310
+ },
+ "future_garden_p2": {
+  "image": "out/photo_src/future_garden_p2.png",
+  "caption": "inside a huge glass dome biosphere; a hexagonal glass dome with thin white frames arches overhead, a tropical rainforest inside with tall palms and giant leaves, a waterfall falling from a mossy rock wall, a winding wooden path and a pond with pink water lilies, warm humid mist, sunlight streaming through the glass in soft beams",
+  "seed": 1311
+ },
+ "crystal_cave_p1": {
+  "image": "out/photo_src/crystal_cave_p1.png",
+  "caption": "inside a vast underground cave filled with giant glowing crystals; huge translucent blue, violet and teal crystal columns grow from the floor, the walls and the ceiling in every direction, they emit a soft inner glow, a shallow still pool reflects the light, sparkling crystal dust floats in the air",
+  "seed": 1320
+ },
+ "crystal_cave_p2": {
+  "image": "out/photo_src/crystal_cave_p2.png",
+  "caption": "beside an underground crystal lake; still dark mirror-like water reflects clusters of glowing blue and violet crystals hanging from the cave ceiling, tall crystal formations stand along the shore, smooth wet stone, droplets falling from above, a soft cold blue light filling the cave",
+  "seed": 1321
+ },
+ "floating_islands_p1": {
+  "image": "out/photo_src/floating_islands_p1.png",
+  "caption": "standing on the grassy edge of a floating island high in the sky above a sea of white clouds; other floating islands with trees and ancient stone ruins hover around at different heights, waterfalls pour off their edges and dissolve into the clouds, birds fly between them, bright sun, deep blue sky",
+  "seed": 1330
+ },
+ "floating_islands_p2": {
+  "image": "out/photo_src/floating_islands_p2.png",
+  "caption": "in a fantasy sky city on floating rocks at sunset; elegant white stone buildings with blue domes and slender towers stand on floating islands connected by arched stone bridges, waterfalls fall from the islands into the clouds, a sea of golden clouds below, an orange and pink sky with the sun low on the horizon",
+  "seed": 1331
+ },
+ "sahara_dunes_p1": {
+  "image": "out/photo_src/sahara_dunes_p1.png",
+  "caption": "standing on the crest of a huge golden sand dune in the sahara at sunset; endless waves of orange and gold dunes stretch to the horizon in every direction, sharp ridges cast long purple shadows, fine wind ripples in the sand at the feet, a tiny camel caravan walks in a line far away, the sky glows orange near the horizon and fades to deep blue overhead",
+  "seed": 1340
+ },
+ "sahara_dunes_p2": {
+  "image": "out/photo_src/sahara_dunes_p2.png",
+  "caption": "in the middle of tall desert dunes on a clear moonless night; the smooth curved dunes glow silver blue in the starlight, the milky way arches overhead from horizon to horizon, thousands of stars and a few shooting stars, fine ripples in the cool sand at the feet, absolute silence and calm",
+  "seed": 1341
+ },
+ "oasis_p1": {
+  "image": "out/photo_src/oasis_p1.png",
+  "caption": "at the edge of a desert oasis; a clear blue spring-fed pool surrounded by tall date palms and fresh green grass, golden sand dunes rise all around, a small mud brick house with a wooden door and a clay water jar, perfect reflections of the palms in the water, bright midday sun, a clear deep blue sky",
+  "seed": 1350
+ },
+ "oasis_p2": {
+  "image": "out/photo_src/oasis_p2.png",
+  "caption": "near an oasis at dusk with a caravan of camels resting; a row of camels lying on the sand with colorful woven saddles and tassels, a small crackling campfire with a brass teapot, palms and a still pool reflecting the sky, sand dunes all around, the sky glowing purple and orange with the first stars",
+  "seed": 1351
+ },
+ "canyon_p1": {
+  "image": "out/photo_src/canyon_p1.png",
+  "caption": "inside a narrow slot canyon of smooth flowing red and orange sandstone; the walls curve like frozen waves on all sides with fine layered stripes and glow in warm reflected light, a single beam of sunlight falls from a narrow opening far above, glowing dust floats in the beam, a soft sandy floor",
+  "seed": 1360
+ },
+ "canyon_p2": {
+  "image": "out/photo_src/canyon_p2.png",
+  "caption": "on the rim of a vast desert canyon at sunrise; layered red, orange and cream cliffs drop steeply into a deep canyon with a winding green river, flat-topped plateaus and tall buttes in every direction, a few hardy junipers on the rim, the rising sun lights the rock in gold, a clear blue sky with thin pink clouds",
+  "seed": 1361
+ },
+ "salt_flat_p1": {
+  "image": "out/photo_src/salt_flat_p1.png",
+  "caption": "standing on a vast salt flat covered by a thin layer of still water; the surface is a perfect mirror reflecting the deep blue sky and big white clouds, the horizon line disappears so the sky continues below the feet, distant purple mountains float on the horizon, the feeling of standing in the middle of the sky",
+  "seed": 1370
+ },
+ "salt_flat_p2": {
+  "image": "out/photo_src/salt_flat_p2.png",
+  "caption": "on a white salt flat at sunset; hexagonal salt crust patterns with raised white edges cover the ground in every direction, the sky is pink, orange and violet, distant purple mountains on the horizon, a thin water layer near the horizon reflects the colors, long soft shadows",
+  "seed": 1371
+ },
+ "country_farm_p1": {
+  "image": "out/photo_src_final/country_farm_p1.png",
+  "caption": "a peaceful countryside farm in summer with a clearly detailed red wooden barn with white trim, a white farmhouse with a porch, a windmill, wooden fences and green fields, horses grazing in the paddock, a big oak tree, soft clouds in a blue sky, every building sharp and well formed",
+  "seed": 1380
+ },
+ "country_farm_p2": {
+  "image": "out/photo_src/country_farm_p2.png",
+  "caption": "in a korean rural village in autumn; traditional hanok houses with curved dark tiled roofs, wooden lattice doors and low stone walls, golden rice fields ready for harvest, persimmon trees heavy with bright orange fruit, a narrow dirt road, red chili peppers drying on straw mats, forested mountains behind, a clear blue autumn sky",
+  "seed": 1381
+ },
+ "vineyard_p1": {
+  "image": "out/photo_src/vineyard_p1.png",
+  "caption": "standing among rolling vineyard hills in tuscany at golden hour; rows of green grapevines heavy with purple grapes follow the curves of the hills in every direction, tall dark cypress trees line a white gravel road, a stone villa with a terracotta roof on a hilltop, warm golden light and long shadows, a soft blue sky",
+  "seed": 1390
+ },
+ "vineyard_p2": {
+  "image": "out/photo_src/vineyard_p2.png",
+  "caption": "on a quiet country lane in a provence village; old honey-colored stone houses with faded blue wooden shutters, climbing pink roses and wisteria over the doors, clay pots of lavender, silver-green olive trees, a small stone fountain, fields and hills beyond, a clear warm sky",
+  "seed": 1391
+ },
+ "mountain_village_p1": {
+  "image": "out/photo_src/mountain_village_p1.png",
+  "caption": "on a green alpine meadow above a swiss mountain village; wooden chalets with red geranium flower boxes and wide roofs, a small white church with a pointed tower, bright green pastures with wildflowers, dark pine forests on the slopes, snowy jagged peaks all around, a clear blue sky with a few small clouds",
+  "seed": 1400
+ },
+ "mountain_village_p2": {
+  "image": "out/photo_src/mountain_village_p2.png",
+  "caption": "on a high mountain pasture with grazing brown and white cows wearing big bells; lush green grass full of yellow and purple wildflowers, a small wooden hut with a stone roof, a clear mountain stream, snowy peaks and glaciers around, a deep blue sky",
+  "seed": 1401
+ },
+ "jurassic_jungle_p1": {
+  "image": "out/photo_src/jurassic_jungle_p1.png",
+  "caption": "in a prehistoric jurassic jungle beside a wide river; giant tree ferns, cycads, huge ancient conifers and tall horsetails in every direction, thick humid mist between the trunks, a wide muddy river with fallen logs, a distant volcano with a thin smoke plume, pterosaurs gliding in a hazy pale sky, warm diffuse light",
+  "seed": 1410
+ },
+ "jurassic_jungle_p2": {
+  "image": "out/photo_src/jurassic_jungle_p2.png",
+  "caption": "in a wide prehistoric valley with a herd of long-necked sauropod dinosaurs grazing near a calm lake; the huge grey-green dinosaurs with long necks and tails stand among ferns and conifers, smaller dinosaurs drink at the shore, the lake reflects the sky, misty mountains around the valley",
+  "seed": 1411
+ },
+ "jurassic_swamp_p1": {
+  "image": "out/photo_src/jurassic_swamp_p1.png",
+  "caption": "in a primeval swamp; huge ancient trees with wide buttress roots stand in dark still water, long hanging moss drapes from the branches, thick white mist, giant dragonflies with shimmering wings, ferns and horsetails on small muddy islands, dim green filtered light",
+  "seed": 1420
+ },
+ "jurassic_swamp_p2": {
+  "image": "out/photo_src/jurassic_swamp_p2.png",
+  "caption": "on a prehistoric volcanic landscape at dusk; a large volcano glows with slow orange lava flows down its flanks, fields of dark cooled lava rock, tough ferns growing in cracks, columns of grey smoke rising, an orange and red sky with dark clouds",
+  "seed": 1421
+ },
+ "jurassic_beach_p1": {
+  "image": "out/photo_src/jurassic_beach_p1.png",
+  "caption": "on a prehistoric coastline; a wide golden sand beach with tide pools, dark volcanic rocks at the water edge, a primitive jungle of tree ferns and conifers behind, pterosaurs flying in a line over a calm turquoise sea, a hazy warm sun, huge white clouds",
+  "seed": 1430
+ },
+ "jurassic_beach_p2": {
+  "image": "out/photo_src/jurassic_beach_p2.png",
+  "caption": "on a jurassic plain at sunset with herds of dinosaurs; a wide grassland of low ferns stretching to the horizon, herds of horned and plated dinosaurs walking slowly, scattered tall conifers, distant mountains, an orange and pink sky",
+  "seed": 1431
+ },
+ "medieval_castle_p1": {
+  "image": "out/photo_src/medieval_castle_p1.png",
+  "caption": "in the cobblestone courtyard of a medieval stone castle; high grey stone walls with battlements, round towers with dark slate conical roofs, colorful heraldic banners hanging from the walls, burning torches in iron holders, a heavy wooden gate with iron studs, a stone well, wooden barrels, a cloudy sky",
+  "seed": 1440
+ },
+ "medieval_castle_p2": {
+  "image": "out/photo_src/medieval_castle_p2.png",
+  "caption": "on a winding dirt path on a hillside in front of a medieval castle on a hilltop above autumn forests; the grey castle with tall towers and long curtain walls, forests of red and gold trees on the slopes, a river winding through the valley, a dramatic sky with sunbeams breaking through",
+  "seed": 1441
+ },
+ "medieval_town_p1": {
+  "image": "out/photo_src/medieval_town_p1.png",
+  "caption": "in a medieval european town square; colorful half-timbered houses with steep red roofs and flower boxes, a carved stone fountain in the center, wooden market stalls with fruit, bread and cloth, cobblestones, a tall church tower with a clock, a blue sky with white clouds",
+  "seed": 1450
+ },
+ "medieval_town_p2": {
+  "image": "out/photo_src/medieval_town_p2.png",
+  "caption": "in a medieval harbor town; wooden sailing ships with furled sails moored at a stone quay, stone houses with tiled roofs along the water, barrels, coiled ropes and fishing nets, seagulls, calm green-blue water, a lighthouse at the harbor entrance",
+  "seed": 1451
+ },
+ "great_hall_p1": {
+  "image": "out/photo_src/great_hall_p1.png",
+  "caption": "inside a grand medieval great hall; a long wooden feast table with candles, silver goblets, bread and fruit, a huge stone fireplace with a roaring fire, colorful tapestries on the stone walls, iron chandeliers with candles, dark wooden roof beams, tall arched windows with evening light",
+  "seed": 1460
+ },
+ "great_hall_p2": {
+  "image": "out/photo_src/great_hall_p2.png",
+  "caption": "inside a gothic cathedral; tall pointed arches and ribbed stone vaults high above, huge colorful stained glass windows casting beams of red, blue and gold light, a great rose window, rows of stone columns, wooden pews, candles near the altar",
+  "seed": 1461
+ },
+ "medieval_library_p1": {
+  "image": "out/photo_src_final/medieval_library_p1.png",
+  "caption": "a magical wizard library inside a stone tower, tall curved bookshelves full of ancient books, floating glowing books and candles in the air, a large desk with an open spellbook, potions, a crystal ball and a brass astrolabe, a starry window, warm magical light",
+  "seed": 1470
+ },
+ "medieval_library_p2": {
+  "image": "out/photo_src/medieval_library_p2.png",
+  "caption": "inside a wizard tower study; round stone walls, curved wooden shelves with books, scrolls and glowing potions in colorful glass bottles, a brass telescope at an arched window with the night sky, a bubbling cauldron, candles and star charts",
+  "seed": 1471
+ },
+ "ancient_temple_p1": {
+  "image": "out/photo_src/ancient_temple_p1.png",
+  "caption": "in front of an ancient jungle temple ruin; a huge stone temple with towers overgrown by the roots of giant trees, carved stone faces, hanging vines, green moss on every stone, a jungle all around, golden sun rays through the canopy, birds",
+  "seed": 1480
+ },
+ "ancient_temple_p2": {
+  "image": "out/photo_src_final/ancient_temple_p2.png",
+  "caption": "a tibetan buddhist monastery on the high tibetan plateau, white-washed walls and red and gold roofs built into a rocky mountainside, golden roof ornaments, long strings of colorful prayer flags fluttering, a few monks in maroon robes walking on the stone steps, snowy himalayan peaks and a deep blue sky",
+  "seed": 1481
+ },
+ "fairy_forest_p1": {
+  "image": "out/photo_src/fairy_forest_p1.png",
+  "caption": "in an enchanted forest at night; giant glowing mushrooms in blue and purple, ancient twisted trees covered in moss, floating golden light orbs, glowing flowers on the forest floor, a soft magical mist, tiny sparkles in the air",
+  "seed": 1490
+ },
+ "fairy_forest_p2": {
+  "image": "out/photo_src/fairy_forest_p2.png",
+  "caption": "beside a magical forest pond at night; glowing white and pink flowers and lily pads float on the water, fireflies dance, weeping willows hang over the pond, a large glowing moon reflected in the water, soft blue mist",
+  "seed": 1491
+ },
+ "mystic_world_p1": {
+  "image": "out/photo_src/mystic_world_p1.png",
+  "caption": "standing on a giant moss-covered tree root high in an original bioluminescent alien rainforest world at night; colossal trees with glowing veins tower in every direction, enormous floating mountains drift in the sky trailing waterfalls and hanging vines, giant spiral ferns and curled plants glow in electric cyan, violet and magenta, a carpet of luminous moss glows under the feet, floating glowing seeds drift like tiny jellyfish, blue-lit mist, a huge gas giant planet and its moons in the sky above",
+  "seed": 1500
+ },
+ "mystic_world_p2": {
+  "image": "out/photo_src/mystic_world_p2.png",
+  "caption": "at the edge of a glowing lake in a mystical alien valley at twilight; floating rock mountains with waterfalls hover above the valley and mirror in the lake, the shores are covered with giant bioluminescent plants with translucent petals, glowing reeds and tall coral-like trees, flocks of small glowing winged creatures far away, a deep teal sky with two moons",
+  "seed": 1501
+ },
+ "lantern_festival_p1": {
+  "image": "out/photo_src_final/lantern_festival_p1.png",
+  "caption": "viewed from a wooden boat on a calm lake at night during a lantern festival, other boats with people floating nearby, a moderate number of glowing paper lanterns rising into the starry sky and floating on the water, a traditional pavilion lit on the shore, warm reflections on the water",
+  "seed": 1510
+ },
+ "lantern_festival_p2": {
+  "image": "out/photo_src/lantern_festival_p2.png",
+  "caption": "in a traditional asian night market street; rows of red paper lanterns hang overhead, wooden shopfronts with painted signs, small food stalls with rising steam, warm orange light on the wet stone street, a narrow sky above",
+  "seed": 1511
+ },
+ "city_night_view_p1": {
+  "image": "out/photo_src/city_night_view_p1.png",
+  "caption": "on a glass observation deck at the top of a tall skyscraper at night; a glittering city skyline in every direction, lit towers with blinking red lights, streets with flowing white and red car lights, a river with illuminated bridges, a deep blue sky with a few clouds",
+  "seed": 1520
+ },
+ "city_night_view_p2": {
+  "image": "out/photo_src/city_night_view_p2.png",
+  "caption": "in a riverside park at night with a view of a wide river; illuminated arched bridges cross the water, a glowing city skyline on the far bank reflects in the river, grass and a walking path along the shore, street lamps, a deep blue night sky",
+  "seed": 1521
+ }
+}
