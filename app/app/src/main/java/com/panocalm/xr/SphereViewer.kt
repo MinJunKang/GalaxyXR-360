@@ -39,44 +39,66 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     private var job: Job? = null
     var onError: (String) -> Unit = {}
 
-    // view direction set by hand: yaw turns the sphere left/right, pitch tilts it up/down (head turning still works as usual)
-    var yawDeg = 0f; private set
-    var pitchDeg = 0f; private set
-    var onViewChanged: (Float, Float) -> Unit = { _, _ -> }
+    // view orientation set by hand, kept as one quaternion so a drag in any direction (diagonals included) turns the scene
+    // about the axis perpendicular to that drag, like grabbing a globe. Head turning still works as usual on top of this.
+    private var view: Quaternion = Quaternion.Identity
+    /** 수평 유지: after every move remove the sideways tilt (roll) seen from the front, so the horizon stays level */
+    var keepLevel = false
     private var dragFrom: Vector3? = null
 
+    /** dYaw: degrees about the vertical axis (+ turns the view right), dPitch: degrees about the left-right axis (+ moves the scene up).
+     *  Both at once give a single diagonal rotation. */
     fun rotateBy(dYaw: Float, dPitch: Float) {
-        yawDeg = ((yawDeg + dYaw) % 360f + 360f) % 360f
-        pitchDeg = (pitchDeg + dPitch).coerceIn(-90f, 90f)
-        applyView(); onViewChanged(yawDeg, pitchDeg)
+        val ang = kotlin.math.sqrt(dYaw * dYaw + dPitch * dPitch)
+        if (ang < 1e-3f) return
+        val axis = (Vector3.Up * dYaw + Vector3.Right * dPitch) / ang
+        view = norm(Quaternion.fromAxisAngle(axis, ang) * view)
+        settle()
     }
 
-    fun resetView() { yawDeg = 0f; pitchDeg = 0f; applyView(); onViewChanged(0f, 0f) }
+    /** 30 degree steps turn the scene about its own vertical pole (a turntable), whatever the tilt */
+    fun turn(deg: Float) { view = norm(view * Quaternion.fromAxisAngle(Vector3.Up, deg)); settle() }
 
-    private fun applyView() {
-        // like a 360 viewer camera: turn the scene around its own vertical pole (yaw), then tilt it about the viewer's
-        // left-right axis (pitch). Rx * Ry keeps the horizon level for any yaw; Ry * Rx would turn the tilt into a roll after turning.
-        val q = Quaternion.fromAxisAngle(Vector3.Right, pitchDeg) * Quaternion.fromAxisAngle(Vector3.Up, yawDeg)
-        entity?.setPose(Pose(Vector3(0f, 0f, 0f), q))
+    fun resetView() { view = Quaternion.Identity; applyView() }
+
+    /** one-shot: straighten the horizon, keeping where the scene points */
+    fun levelNow() { view = removeRoll(view); applyView() }
+
+    private fun settle() { if (keepLevel) view = removeRoll(view); applyView() }
+
+    private fun removeRoll(q: Quaternion): Quaternion {
+        val u = q * Vector3.Up                                    // the scene's "up" as seen by the viewer
+        if (u.x * u.x + u.y * u.y < 0.02f) return q               // looking straight at a pole: roll is undefined
+        val phi = Math.toDegrees(Math.atan2(u.x.toDouble(), u.y.toDouble())).toFloat()
+        return norm(Quaternion.fromAxisAngle(Vector3.Backward, phi) * q)
     }
 
-    /** pinch on the sphere and drag: the scene follows the hand (grab-and-turn). */
+    private fun norm(q: Quaternion): Quaternion {
+        val n = kotlin.math.sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
+        return if (n < 1e-6f) Quaternion.Identity else Quaternion(q.x / n, q.y / n, q.z / n, q.w / n)
+    }
+
+    private fun applyView() { entity?.setPose(Pose(Vector3(0f, 0f, 0f), view)) }
+
+    /** pinch on the sphere and drag in any direction: the point under the hand follows the hand (grab-and-turn). */
     private fun onSphereInput(ev: InputEvent) {
         when (ev.action) {
-            InputEvent.Action.DOWN -> dragFrom = ev.direction
+            InputEvent.Action.DOWN -> dragFrom = ev.direction.toNormalized()
             InputEvent.Action.MOVE -> {
                 val a = dragFrom ?: return
-                val b = ev.direction
-                val dYaw = Math.toDegrees(Math.atan2(b.x.toDouble(), -b.z.toDouble()) - Math.atan2(a.x.toDouble(), -a.z.toDouble())).toFloat()
-                val dPitch = Math.toDegrees(Math.asin(b.y.toDouble().coerceIn(-1.0, 1.0)) - Math.asin(a.y.toDouble().coerceIn(-1.0, 1.0))).toFloat()
-                rotateBy(-wrap(dYaw) * DRAG_GAIN, dPitch * DRAG_GAIN)
+                val b = ev.direction.toNormalized()
+                val axis = a cross b
+                val len = kotlin.math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z)
+                if (len > 1e-5f) {
+                    val ang = Math.toDegrees(Math.atan2(len.toDouble(), (a dot b).toDouble())).toFloat() * DRAG_GAIN
+                    view = norm(Quaternion.fromAxisAngle(axis / len, ang) * view)
+                    settle()
+                }
                 dragFrom = b
             }
             InputEvent.Action.UP, InputEvent.Action.CANCEL -> dragFrom = null
         }
     }
-
-    private fun wrap(d: Float): Float = if (d > 180f) d - 360f else if (d < -180f) d + 360f else d
 
     val isPlaying: Boolean get() = player?.isPlaying == true
     val isShowing: Boolean get() = entity != null
@@ -105,7 +127,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
             parent = session.scene.activitySpace,
         )
         entity = e
-        yawDeg = 0f; pitchDeg = 0f; applyView(); onViewChanged(0f, 0f)   // every item starts facing its front
+        view = Quaternion.Identity; applyView()   // every item starts facing its front
         try { e.addComponent(InteractableComponent.create(session) { ev -> onSphereInput(ev) }) } catch (t: Throwable) { /* drag pad on the panel still works */ }
         when (item.kind) {
             Item.Kind.VIDEO -> {

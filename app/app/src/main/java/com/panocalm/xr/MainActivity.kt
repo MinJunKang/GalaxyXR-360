@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF8FD3C7))) {
                 Surface(Modifier.fillMaxSize(), color = Color(0xFF101418)) {
                     App(items, status, scanning, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() },
+                        onTurn = { viewer?.turn(it) }, onLevel = { viewer?.levelNow() }, onKeepLevel = { viewer?.keepLevel = it },
                         onRefresh = ::refresh, onAddFolder = { pickFolder.launch(null) }, onAskPerm = { askMedia.launch(MEDIA_PERMS) })
                 }
             }
@@ -104,7 +105,7 @@ class MainActivity : ComponentActivity() {
         if (gridPanelSize == null) gridPanelSize = s.scene.mainPanelEntity.size
         v.enterImmersive()
         v.show(item)
-        s.scene.mainPanelEntity.size = FloatSize2d(1.0f, 0.26f)      // compact control bar + look-around pad while immersed
+        s.scene.mainPanelEntity.size = FloatSize2d(1.25f, 0.26f)      // compact control bar + look-around pad while immersed
     }
 
     private fun close() {
@@ -125,6 +126,7 @@ enum class RepeatMode { ONE, ALL }
 @Composable
 private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
                 rotate: (Float, Float) -> Unit, resetView: () -> Unit,
+                onTurn: (Float) -> Unit, onLevel: () -> Unit, onKeepLevel: (Boolean) -> Unit,
                 onRefresh: () -> Unit, onAddFolder: () -> Unit, onAskPerm: () -> Unit) {
     var cat by remember { mutableStateOf("all") }
     var kind by remember { mutableStateOf<Item.Kind?>(null) }
@@ -150,7 +152,7 @@ private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (It
             onPause = { paused = !paused; pause() },
             onMode = { mode = if (mode == RepeatMode.ONE) RepeatMode.ALL else RepeatMode.ONE },
             onDwell = { dwellSec = when (dwellSec) { 30 -> 60; 60 -> 180; 180 -> 300; else -> 30 } },
-            rotate = rotate, resetView = resetView,
+            rotate = rotate, resetView = resetView, onTurn = onTurn, onLevel = onLevel, onKeepLevel = onKeepLevel,
             onBack = { current = null; paused = false; close() })
         return
     }
@@ -209,7 +211,9 @@ private fun Card(item: Item, onClick: () -> Unit) {
 @Composable
 private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean,
                        onPrev: () -> Unit, onNext: () -> Unit, onPause: () -> Unit, onMode: () -> Unit, onDwell: () -> Unit,
-                       rotate: (Float, Float) -> Unit, resetView: () -> Unit, onBack: () -> Unit) {
+                       rotate: (Float, Float) -> Unit, resetView: () -> Unit, onTurn: (Float) -> Unit, onLevel: () -> Unit,
+                       onKeepLevel: (Boolean) -> Unit, onBack: () -> Unit) {
+    var level by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onBack) { Text("✕ 목록") }
@@ -225,15 +229,17 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
         }
         // look-around: pinch-drag on this pad (or directly on the 360 scene) to turn the view; buttons turn in 30 degree steps
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton({ rotate(-30f, 0f) }) { Text("↺ 30°") }
+            OutlinedButton({ onTurn(-30f) }) { Text("↺ 30°") }
             Box(Modifier.weight(1f).height(56.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF1C2329))
                 .border(1.dp, Color(0xFF37474F), RoundedCornerShape(12.dp))
-                .pointerInput(Unit) { detectDragGestures { change, drag -> change.consume(); rotate(-drag.x * 0.25f, drag.y * 0.15f) } },
+                .pointerInput(Unit) { detectDragGestures { change, drag -> change.consume(); rotate(-drag.x * 0.25f, -drag.y * 0.25f) } },
                 contentAlignment = Alignment.Center) {
-                Text("✋ 여기를 집어서 좌우·위아래로 끌면 보는 방향이 바뀝니다 (360° 화면을 직접 집어도 됨)", color = Color(0xFFB0BEC5), fontSize = 14.sp)
+                Text("✋ 집어서 어느 방향(대각선 포함)으로든 끌면 장면이 따라 돕니다 · 360° 화면을 직접 집어도 됨", color = Color(0xFFB0BEC5), fontSize = 14.sp)
             }
-            OutlinedButton({ rotate(30f, 0f) }) { Text("30° ↻") }
+            OutlinedButton({ onTurn(30f) }) { Text("30° ↻") }
             OutlinedButton(resetView) { Text("⌂ 정면") }
+            OutlinedButton(onLevel) { Text("⇔ 수평 맞추기") }
+            FilterChip(level, { level = !level; onKeepLevel(level) }, { Text("🧭 수평 유지") })
         }
     }
 }
