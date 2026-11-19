@@ -10,8 +10,8 @@ android {
         applicationId = "com.panocalm.xr"
         minSdk = 34
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.5"
+        versionCode = 10
+        versionName = "1.6"
         ndk { abiFilters += listOf("arm64-v8a") }   // Galaxy XR is arm64
     }
     buildTypes {

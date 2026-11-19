@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
+import android.media.AudioAttributes
+import android.media.MediaPlayer
+import android.os.PowerManager
+import java.io.File
 import android.net.Uri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -24,6 +28,8 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -39,11 +45,22 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     private var job: Job? = null
     var onError: (String) -> Unit = {}
 
+    // photo ambience: framework MediaPlayer with native looping, played from a private copy of the file (no content-provider
+    // seeking on every loop). A watchdog restarts any sound/video that stopped without the user pausing it.
+    private var amb: MediaPlayer? = null
+    private var ambFile: File? = null
+    private var userPaused = false
+    private var watchdog: Job? = null
+    private var startedAt = 0L
+    private var recoveries = 0
+    /** one line for the control bar: is the sound/video running, for how long, how often it had to be restarted */
+    var onPlayInfo: (String) -> Unit = {}
+
     // view orientation set by hand, kept as one quaternion so a drag in any direction (diagonals included) turns the scene
     // about the axis perpendicular to that drag, like grabbing a globe. Head turning still works as usual on top of this.
     private var view: Quaternion = Quaternion.Identity
     /** 수평 유지: after every move remove the sideways tilt (roll) seen from the front, so the horizon stays level */
-    var keepLevel = false
+    var keepLevel = true
     private var dragFrom: Vector3? = null
     private var dragStart: Vector3? = null
     /** a pinch on the 360 scene without dragging (used to bring the hidden control panel back) */
@@ -137,6 +154,8 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
         entity = e
         view = Quaternion.Identity; applyView()   // every item starts facing its front
         try { e.addComponent(InteractableComponent.create(session) { ev -> onSphereInput(ev) }) } catch (t: Throwable) { /* drag pad on the panel still works */ }
+        userPaused = false; recoveries = 0; startedAt = System.currentTimeMillis()
+        startWatchdog()
         when (item.kind) {
             Item.Kind.VIDEO -> {
                 val rf = DefaultRenderersFactory(ctx).setEnableDecoderFallback(true)
@@ -151,19 +170,18 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                         onError("재생 오류: ${error.errorCodeName}")
                     }
                 })
+                p.setWakeMode(C.WAKE_MODE_LOCAL)
                 p.prepare(); p.play()
                 player = p
             }
             Item.Kind.PHOTO -> {
                 item.audio?.let { a ->                 // looping ambience while the photo is shown
-                    val p = ExoPlayer.Builder(ctx).build()
-                    p.repeatMode = Player.REPEAT_MODE_ONE
-                    p.setMediaItem(MediaItem.fromUri(a))
-                    p.addListener(object : Player.Listener {
-                        override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED) { p.seekTo(0); p.play() } }
-                    })
-                    p.prepare(); p.play()
-                    player = p
+                    scope.launch {
+                        val f = withContext(Dispatchers.IO) { cacheAudio(a) }
+                        if (entity !== e) return@launch
+                        if (f == null) { onPlayInfo("🔇 소리 파일을 열지 못했습니다"); return@launch }
+                        ambFile = f; startAmbience(f)
+                    }
                 }
                 e.setSurfacePixelDimensions(IntSize2d(item.width, item.height))
                 job = scope.launch {
@@ -183,14 +201,76 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     }
 
     fun togglePause() {
-        val p = player ?: return
-        if (p.isPlaying) p.pause() else p.play()
+        userPaused = !userPaused
+        player?.let { if (userPaused) it.pause() else it.play() }
+        amb?.let { try { if (userPaused) it.pause() else it.start() } catch (_: Exception) { } }
+    }
+
+    private fun startAmbience(f: File) {
+        try { amb?.release() } catch (_: Exception) { }
+        val mp = MediaPlayer()
+        mp.setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+        mp.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK)
+        mp.setDataSource(f.absolutePath)
+        mp.isLooping = true
+        mp.setOnCompletionListener { if (!userPaused) { it.seekTo(0); it.start() } }     // only if looping was ignored
+        mp.setOnErrorListener { _, what, extra ->
+            recoveries++; onPlayInfo("🔊 소리 오류($what/$extra) → 다시 시작")
+            scope.launch { delay(300); if (amb === mp && entity != null) startAmbience(f) }
+            true
+        }
+        mp.prepare()
+        if (!userPaused) mp.start()
+        amb = mp
+    }
+
+    /** copies the (small) sound file into the app cache once, so looping never depends on the Downloads provider */
+    private fun cacheAudio(u: Uri): File? = try {
+        val dir = File(ctx.cacheDir, "audio").apply { mkdirs() }
+        val f = File(dir, Integer.toHexString(u.toString().hashCode()) + ".m4a")
+        if (!f.exists() || f.length() == 0L) {
+            val tmp = File(dir, f.name + ".tmp")
+            ctx.contentResolver.openInputStream(u)?.use { i -> tmp.outputStream().use { o -> i.copyTo(o) } } ?: throw IllegalStateException("no stream")
+            tmp.renameTo(f)
+        }
+        f
+    } catch (e: Exception) { null }
+
+    private fun startWatchdog() {
+        watchdog?.cancel()
+        watchdog = scope.launch {
+            while (isActive) {
+                delay(2000)
+                if (entity == null) break
+                val p = player; val m = amb
+                if (!userPaused) {
+                    if (p != null && !p.isPlaying && p.playbackState != Player.STATE_BUFFERING) {
+                        recoveries++
+                        if (p.playbackState == Player.STATE_IDLE) p.prepare()
+                        if (p.playbackState == Player.STATE_ENDED) p.seekTo(0)
+                        p.play()
+                    }
+                    if (m != null) {
+                        val playing = try { m.isPlaying } catch (_: Exception) { false }
+                        if (!playing) { recoveries++; ambFile?.let { startAmbience(it) } }
+                    }
+                }
+                val sec = (System.currentTimeMillis() - startedAt) / 1000
+                val what = if (p != null) "▶ 영상" else if (m != null) "🔊 소리" else ""
+                if (what.isNotEmpty()) onPlayInfo("$what " + (if (userPaused) "일시정지" else "재생 중") +
+                    " · ${sec / 60}:${"%02d".format(sec % 60)}" + (if (recoveries > 0) " · 자동 재시작 ${recoveries}회" else ""))
+            }
+        }
     }
 
     fun close() {
         job?.cancel(); job = null
+        watchdog?.cancel(); watchdog = null
         player?.release(); player = null
+        try { amb?.release() } catch (_: Exception) { }
+        amb = null; ambFile = null
         entity?.dispose(); entity = null
+        onPlayInfo("")
     }
 
     private fun decode(item: Item): Bitmap? {

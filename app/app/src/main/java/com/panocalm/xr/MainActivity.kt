@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
     private var gridPanelSize: FloatSize2d? = null
     private var gridPanelPose: Pose? = null
     var panelHidden by mutableStateOf(false); private set
+    private var playInfo by mutableStateOf("")
 
     private var items by mutableStateOf<List<Item>>(emptyList())
     private var status by mutableStateOf<String?>("불러오는 중…")
@@ -80,7 +81,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() { super.onResume(); if (viewer?.isShowing != true) refresh() }
+    override fun onResume() {
+        super.onResume()
+        if (viewer?.isShowing != true) refresh() else if (panelHidden && System.currentTimeMillis() - hiddenAt > 2000) showPanel()   // back from the system menu: show the bar again
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +101,7 @@ class MainActivity : ComponentActivity() {
             when (r) {
                 is SessionCreateSuccess -> {
                     session = r.session
-                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it }; v.onTap = { showPanel() } }
+                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it }; v.onTap = { showPanel() }; v.onPlayInfo = { playInfo = it } }
                 }
                 else -> status = "Android XR 세션을 만들 수 없습니다 (${r::class.simpleName}). Galaxy XR 에서 실행해 주세요."
             }
@@ -107,7 +111,7 @@ class MainActivity : ComponentActivity() {
                 Surface(Modifier.fillMaxSize(), color = Color(0xFF101418)) {
                     App(items, status, scanning, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() },
                         onTurn = { viewer?.turn(it) }, onLevel = { viewer?.levelNow() }, onKeepLevel = { viewer?.keepLevel = it },
-                        onHide = ::hidePanel, panelHidden = panelHidden, onShowPanel = ::showPanel,
+                        onHide = ::hidePanel, panelHidden = panelHidden, playInfo = playInfo, onShowPanel = ::showPanel,
                         onRefresh = ::refresh, onAddFolder = { pickFolder.launch(null) }, onAskPerm = { askMedia.launch(MEDIA_PERMS) })
                 }
             }
@@ -126,9 +130,11 @@ class MainActivity : ComponentActivity() {
         gridPanelPose?.let { g ->
             panel.setPose(Pose(g.translation + Vector3(0f, -0.55f, 0.15f), g.rotation * Quaternion.fromAxisAngle(Vector3.Right, -30f)))
         }
+        hidePanel()                                  // menu hidden by default; pinch the 360 scene once to bring it back
     }
 
-    fun hidePanel() { session?.scene?.mainPanelEntity?.setEnabled(false); panelHidden = true }
+    private var hiddenAt = 0L
+    fun hidePanel() { session?.scene?.mainPanelEntity?.setEnabled(false); panelHidden = true; hiddenAt = System.currentTimeMillis() }
     fun showPanel() { session?.scene?.mainPanelEntity?.setEnabled(true); panelHidden = false }
 
     private fun close() {
@@ -152,7 +158,7 @@ enum class RepeatMode { ONE, ALL }
 private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
                 rotate: (Float, Float) -> Unit, resetView: () -> Unit,
                 onTurn: (Float) -> Unit, onLevel: () -> Unit, onKeepLevel: (Boolean) -> Unit,
-                onHide: () -> Unit, panelHidden: Boolean, onShowPanel: () -> Unit,
+                onHide: () -> Unit, panelHidden: Boolean, playInfo: String, onShowPanel: () -> Unit,
                 onRefresh: () -> Unit, onAddFolder: () -> Unit, onAskPerm: () -> Unit) {
     var cat by remember { mutableStateOf("all") }
     var kind by remember { mutableStateOf<Item.Kind?>(null) }
@@ -176,7 +182,7 @@ private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (It
     }
     if (idx != null && idx in shown.indices) {
         BackHandler { if (panelHidden) onShowPanel() else { current = null; paused = false; close() } }
-        ControlBar(shown[idx], idx, shown.size, mode, dwellSec, paused, remain, onHide,
+        ControlBar(shown[idx], idx, shown.size, mode, dwellSec, paused, remain, playInfo, onHide,
             onPrev = { val n = (idx - 1 + shown.size) % shown.size; current = n; open(shown[n]) },
             onNext = { val n = (idx + 1) % shown.size; current = n; open(shown[n]) },
             onPause = { paused = !paused; pause() },
@@ -239,11 +245,11 @@ private fun Card(item: Item, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean, remain: Int, onHide: () -> Unit,
+private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean, remain: Int, playInfo: String, onHide: () -> Unit,
                        onPrev: () -> Unit, onNext: () -> Unit, onPause: () -> Unit, onMode: () -> Unit, onDwell: () -> Unit,
                        rotate: (Float, Float) -> Unit, resetView: () -> Unit, onTurn: (Float) -> Unit, onLevel: () -> Unit,
                        onKeepLevel: (Boolean) -> Unit, onBack: () -> Unit) {
-    var level by remember { mutableStateOf(false) }
+    var level by remember { mutableStateOf(true) }
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onBack) { Text("✕ 목록") }
@@ -254,7 +260,7 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
                     mode == RepeatMode.ONE -> "🔂 이 장면을 계속 반복"
                     paused -> "⏸ 일시정지"
                     else -> "🔁 다음 장면까지 ${remain}초"
-                }, color = Color(0xFFB0BEC5), fontSize = 13.sp)
+                } + (if (playInfo.isNotEmpty()) " · $playInfo" else ""), color = Color(0xFFB0BEC5), fontSize = 13.sp)
             }
             Button(onPrev) { Text("◀ 이전") }
             Button(onPause) { Text(if (paused) "▶ 재생" else "⏸ 일시정지") }
