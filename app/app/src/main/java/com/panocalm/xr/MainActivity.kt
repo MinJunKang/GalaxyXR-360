@@ -88,6 +88,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // self-test for the endless ambience (adb: am start -n com.panocalm.xr/.MainActivity --es pcm_test <file in app cache>)
+        intent?.getStringExtra("pcm_test")?.let { path ->
+            lifecycleScope.launch {
+                val loop = withContext(Dispatchers.IO) { PcmLoop.start(java.io.File(path)) }
+                repeat(20) { kotlinx.coroutines.delay(2000); android.util.Log.i("Calm360", "pcm_test passes=${loop.passes} playing=${loop.isPlaying}") }
+                loop.release()
+            }
+        }
         val crash = CalmApp.crashFile(this)
         if (crash.exists()) {
             lastCrash = crash.readText().lines().take(14).joinToString("\n")
@@ -101,7 +109,7 @@ class MainActivity : ComponentActivity() {
             when (r) {
                 is SessionCreateSuccess -> {
                     session = r.session
-                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it }; v.onTap = { showPanel() }; v.onPlayInfo = { playInfo = it } }
+                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it }; v.onTap = { if (panelHidden) showPanel() else hidePanel() }; v.onPlayInfo = { playInfo = it } }
                 }
                 else -> status = "Android XR 세션을 만들 수 없습니다 (${r::class.simpleName}). Galaxy XR 에서 실행해 주세요."
             }
@@ -275,7 +283,7 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
                 .border(1.dp, Color(0xFF37474F), RoundedCornerShape(12.dp))
                 .pointerInput(Unit) { detectDragGestures { change, drag -> change.consume(); rotate(-drag.x * 0.25f, -drag.y * 0.25f) } },
                 contentAlignment = Alignment.Center) {
-                Text("✋ 집어서 어느 방향으로든 끌면 장면이 돕니다 · 창을 숨긴 뒤에는 360° 화면을 한 번 집으면 창이 다시 나타납니다", color = Color(0xFFB0BEC5), fontSize = 14.sp)
+                Text("✋ 집어서 어느 방향으로든 끌면 장면이 돕니다 · 360° 화면을 한 번 집으면 이 창이 숨겨지고, 다시 집으면 나타납니다", color = Color(0xFFB0BEC5), fontSize = 14.sp)
             }
             OutlinedButton({ onTurn(30f) }) { Text("30° ↻") }
             OutlinedButton(resetView) { Text("⌂ 정면") }

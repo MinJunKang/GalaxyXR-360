@@ -47,7 +47,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
 
     // photo ambience: framework MediaPlayer with native looping, played from a private copy of the file (no content-provider
     // seeking on every loop). A watchdog restarts any sound/video that stopped without the user pausing it.
-    private var amb: MediaPlayer? = null
+    private var amb: PcmLoop? = null
     private var ambFile: File? = null
     private var userPaused = false
     private var watchdog: Job? = null
@@ -180,7 +180,13 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                         val f = withContext(Dispatchers.IO) { cacheAudio(a) }
                         if (entity !== e) return@launch
                         if (f == null) { onPlayInfo("🔇 소리 파일을 열지 못했습니다"); return@launch }
-                        ambFile = f; startAmbience(f)
+                        ambFile = f
+                        val loop = try { withContext(Dispatchers.IO) { PcmLoop.start(f) } } catch (t: Throwable) {
+                            onPlayInfo("🔇 소리를 열지 못했습니다: ${t.message}"); return@launch
+                        }
+                        if (entity !== e) { loop.release(); return@launch }
+                        if (userPaused) loop.pause()
+                        amb = loop
                     }
                 }
                 e.setSurfacePixelDimensions(IntSize2d(item.width, item.height))
@@ -203,25 +209,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     fun togglePause() {
         userPaused = !userPaused
         player?.let { if (userPaused) it.pause() else it.play() }
-        amb?.let { try { if (userPaused) it.pause() else it.start() } catch (_: Exception) { } }
-    }
-
-    private fun startAmbience(f: File) {
-        try { amb?.release() } catch (_: Exception) { }
-        val mp = MediaPlayer()
-        mp.setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-        mp.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK)
-        mp.setDataSource(f.absolutePath)
-        mp.isLooping = true
-        mp.setOnCompletionListener { if (!userPaused) { it.seekTo(0); it.start() } }     // only if looping was ignored
-        mp.setOnErrorListener { _, what, extra ->
-            recoveries++; onPlayInfo("🔊 소리 오류($what/$extra) → 다시 시작")
-            scope.launch { delay(300); if (amb === mp && entity != null) startAmbience(f) }
-            true
-        }
-        mp.prepare()
-        if (!userPaused) mp.start()
-        amb = mp
+        amb?.let { if (userPaused) it.pause() else it.resume() }
     }
 
     /** copies the (small) sound file into the app cache once, so looping never depends on the Downloads provider */
@@ -250,13 +238,10 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                         if (p.playbackState == Player.STATE_ENDED) p.seekTo(0)
                         p.play()
                     }
-                    if (m != null) {
-                        val playing = try { m.isPlaying } catch (_: Exception) { false }
-                        if (!playing) { recoveries++; ambFile?.let { startAmbience(it) } }
-                    }
+                    if (m != null && !m.isPlaying) { recoveries++; m.resume() }
                 }
                 val sec = (System.currentTimeMillis() - startedAt) / 1000
-                val what = if (p != null) "▶ 영상" else if (m != null) "🔊 소리" else ""
+                val what = if (p != null) "▶ 영상" else if (m != null) "🔊 소리(${m.passes + 1}번째)" else ""
                 if (what.isNotEmpty()) onPlayInfo("$what " + (if (userPaused) "일시정지" else "재생 중") +
                     " · ${sec / 60}:${"%02d".format(sec % 60)}" + (if (recoveries > 0) " · 자동 재시작 ${recoveries}회" else ""))
             }
@@ -267,7 +252,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
         job?.cancel(); job = null
         watchdog?.cancel(); watchdog = null
         player?.release(); player = null
-        try { amb?.release() } catch (_: Exception) { }
+        amb?.release()
         amb = null; ambFile = null
         entity?.dispose(); entity = null
         onPlayInfo("")
