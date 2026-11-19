@@ -47,14 +47,17 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
 
     fun rotateBy(dYaw: Float, dPitch: Float) {
         yawDeg = ((yawDeg + dYaw) % 360f + 360f) % 360f
-        pitchDeg = (pitchDeg + dPitch).coerceIn(-60f, 60f)
+        pitchDeg = (pitchDeg + dPitch).coerceIn(-90f, 90f)
         applyView(); onViewChanged(yawDeg, pitchDeg)
     }
 
     fun resetView() { yawDeg = 0f; pitchDeg = 0f; applyView(); onViewChanged(0f, 0f) }
 
     private fun applyView() {
-        entity?.setPose(Pose(Vector3(0f, 0f, 0f), Quaternion.fromEulerAngles(pitchDeg, yawDeg, 0f)))
+        // like a 360 viewer camera: turn the scene around its own vertical pole (yaw), then tilt it about the viewer's
+        // left-right axis (pitch). Rx * Ry keeps the horizon level for any yaw; Ry * Rx would turn the tilt into a roll after turning.
+        val q = Quaternion.fromAxisAngle(Vector3.Right, pitchDeg) * Quaternion.fromAxisAngle(Vector3.Up, yawDeg)
+        entity?.setPose(Pose(Vector3(0f, 0f, 0f), q))
     }
 
     /** pinch on the sphere and drag: the scene follows the hand (grab-and-turn). */
