@@ -1,7 +1,11 @@
 package com.panocalm.xr
 
-import android.graphics.BitmapFactory
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -38,17 +42,43 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class MainActivity : ComponentActivity() {
     private var session: Session? = null
     private var viewer: SphereViewer? = null
     private var gridPanelSize: FloatSize2d? = null
 
+    private var items by mutableStateOf<List<Item>>(emptyList())
+    private var status by mutableStateOf<String?>("불러오는 중…")
+    private var scanning by mutableStateOf(false)
+
+    private val MEDIA_PERMS = arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO)
+    private val askMedia = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { refresh() }
+    private val pickFolder = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            try { contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (e: SecurityException) { }
+            refresh()
+        }
+    }
+
+    /** rescan downloads, picked folders and the adb folder (also when coming back from the browser / Files app) */
+    fun refresh() {
+        if (scanning) return
+        scanning = true
+        lifecycleScope.launch {
+            val (list, msg) = withContext(Dispatchers.IO) { Catalog.load(this@MainActivity) }
+            items = list
+            val noPerm = MEDIA_PERMS.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+            status = listOfNotNull(msg, if (noPerm) "다운로드한 파일을 자동으로 찾으려면 🔓 파일 접근 허용을 눌러 주세요." else null).joinToString("\n").ifEmpty { null }
+            scanning = false
+        }
+    }
+
+    override fun onResume() { super.onResume(); if (viewer?.isShowing != true) refresh() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val (items, msg) = Catalog.load(this)
-        var status by mutableStateOf(msg)
+        if (MEDIA_PERMS.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) askMedia.launch(MEDIA_PERMS)
         lifecycleScope.launch {
             when (val r = Session.create(this@MainActivity)) {
                 is SessionCreateSuccess -> {
@@ -61,7 +91,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF8FD3C7))) {
                 Surface(Modifier.fillMaxSize(), color = Color(0xFF101418)) {
-                    App(items, status, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() })
+                    App(items, status, scanning, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() },
+                        onRefresh = ::refresh, onAddFolder = { pickFolder.launch(null) }, onAskPerm = { askMedia.launch(MEDIA_PERMS) })
                 }
             }
         }
@@ -92,8 +123,9 @@ class MainActivity : ComponentActivity() {
 enum class RepeatMode { ONE, ALL }
 
 @Composable
-private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
-                rotate: (Float, Float) -> Unit, resetView: () -> Unit) {
+private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
+                rotate: (Float, Float) -> Unit, resetView: () -> Unit,
+                onRefresh: () -> Unit, onAddFolder: () -> Unit, onAskPerm: () -> Unit) {
     var cat by remember { mutableStateOf("all") }
     var kind by remember { mutableStateOf<Item.Kind?>(null) }
     var current by remember { mutableStateOf<Int?>(null) }
@@ -140,11 +172,18 @@ private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close:
             Spacer(Modifier.width(16.dp))
             for (c in Catalog.categories) FilterChip(cat == c.id, { cat = c.id }, { Text(c.label) })
         }
+        Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedButton(onRefresh, enabled = !scanning) { Text(if (scanning) "찾는 중…" else "🔄 새로고침") }
+            OutlinedButton(onAddFolder) { Text("📂 폴더 추가") }
+            OutlinedButton(onAskPerm) { Text("🔓 파일 접근 허용") }
+            Text("${items.size}개 · 사진 ${items.count { it.kind == Item.Kind.PHOTO }} · 영상 ${items.count { it.kind == Item.Kind.VIDEO }}",
+                color = Color(0xFFB0BEC5), fontSize = 13.sp)
+        }
         status?.let { Text(it, color = Color(0xFFFFCC80), modifier = Modifier.padding(vertical = 8.dp)) }
         Spacer(Modifier.height(8.dp))
         LazyVerticalGrid(GridCells.Adaptive(260.dp), horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(shown, key = { it.file.name }) { it2 ->
+            items(shown, key = { it.key }) { it2 ->
                 Card(it2) { mode = RepeatMode.ONE; paused = false; current = shown.indexOf(it2); open(it2) }
             }
         }
@@ -153,8 +192,9 @@ private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close:
 
 @Composable
 private fun Card(item: Item, onClick: () -> Unit) {
-    val img by produceState<ImageBitmap?>(null, item.thumb) {
-        value = withContext(Dispatchers.IO) { loadThumb(item.thumb) }
+    val ctx = LocalContext.current
+    val img by produceState<ImageBitmap?>(null, item.key) {
+        value = withContext(Dispatchers.IO) { Thumbs.load(ctx, item)?.asImageBitmap() }
     }
     Column(Modifier.clip(RoundedCornerShape(14.dp)).background(Color(0xFF1C2329)).clickable(onClick = onClick)) {
         Box(Modifier.fillMaxWidth().aspectRatio(2f).background(Color(0xFF263238))) {
@@ -198,5 +238,3 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
     }
 }
 
-private fun loadThumb(f: File): ImageBitmap? =
-    if (f.exists()) BitmapFactory.decodeFile(f.absolutePath)?.asImageBitmap() else null

@@ -79,6 +79,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     private fun wrap(d: Float): Float = if (d > 180f) d - 360f else if (d < -180f) d + 360f else d
 
     val isPlaying: Boolean get() = player?.isPlaying == true
+    val isShowing: Boolean get() = entity != null
 
     fun enterImmersive() {
         session.scene.requestFullSpaceMode()
@@ -113,7 +114,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                 p.repeatMode = Player.REPEAT_MODE_ONE
                 p.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
                 p.setVideoSurface(e.getSurface())
-                p.setMediaItem(MediaItem.fromUri(Uri.fromFile(item.file)))
+                p.setMediaItem(MediaItem.fromUri(item.uri))
                 p.addListener(object : Player.Listener {
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         onError("재생 오류: ${error.errorCodeName}")
@@ -123,10 +124,10 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                 player = p
             }
             Item.Kind.PHOTO -> {
-                item.audio?.let { f ->                 // looping ambience while the photo is shown
+                item.audio?.let { a ->                 // looping ambience while the photo is shown
                     val p = ExoPlayer.Builder(ctx).build()
                     p.repeatMode = Player.REPEAT_MODE_ONE
-                    p.setMediaItem(MediaItem.fromUri(Uri.fromFile(f)))
+                    p.setMediaItem(MediaItem.fromUri(a))
                     p.prepare(); p.play()
                     player = p
                 }
@@ -160,7 +161,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
 
     private fun decode(item: Item): Bitmap? {
         val o = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.HARDWARE }
-        return BitmapFactory.decodeFile(item.file.absolutePath, o)
+        return try { ctx.contentResolver.openInputStream(item.uri)?.use { BitmapFactory.decodeStream(it, null, o) } } catch (e: Exception) { null }
     }
 
     companion object {

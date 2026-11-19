@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Android XR: start in Full Space so the 360 sphere can surround the user -->
     <uses-feature android:name="android.software.xr.api.spatial" android:required="false" />
+    <!-- read 360 photos, videos and their sounds downloaded on the headset (Download folder etc.) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <application
         android:label="@string/app_name"
         android:largeHeap="true"
