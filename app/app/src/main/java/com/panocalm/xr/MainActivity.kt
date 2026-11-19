@@ -38,6 +38,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
+import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.scene
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,6 +50,8 @@ class MainActivity : ComponentActivity() {
     private var session: Session? = null
     private var viewer: SphereViewer? = null
     private var gridPanelSize: FloatSize2d? = null
+    private var gridPanelPose: Pose? = null
+    var panelHidden by mutableStateOf(false); private set
 
     private var items by mutableStateOf<List<Item>>(emptyList())
     private var status by mutableStateOf<String?>("불러오는 중…")
@@ -92,7 +97,7 @@ class MainActivity : ComponentActivity() {
             when (r) {
                 is SessionCreateSuccess -> {
                     session = r.session
-                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it } }
+                    viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it }; v.onTap = { showPanel() } }
                 }
                 else -> status = "Android XR 세션을 만들 수 없습니다 (${r::class.simpleName}). Galaxy XR 에서 실행해 주세요."
             }
@@ -102,6 +107,7 @@ class MainActivity : ComponentActivity() {
                 Surface(Modifier.fillMaxSize(), color = Color(0xFF101418)) {
                     App(items, status, scanning, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() },
                         onTurn = { viewer?.turn(it) }, onLevel = { viewer?.levelNow() }, onKeepLevel = { viewer?.keepLevel = it },
+                        onHide = ::hidePanel, panelHidden = panelHidden, onShowPanel = ::showPanel,
                         onRefresh = ::refresh, onAddFolder = { pickFolder.launch(null) }, onAskPerm = { askMedia.launch(MEDIA_PERMS) })
                 }
             }
@@ -111,16 +117,26 @@ class MainActivity : ComponentActivity() {
     private fun open(item: Item) {
         val v = viewer ?: return
         val s = session ?: return
-        if (gridPanelSize == null) gridPanelSize = s.scene.mainPanelEntity.size
+        val panel = s.scene.mainPanelEntity
+        if (gridPanelSize == null) { gridPanelSize = panel.size; gridPanelPose = panel.getPose() }
         v.enterImmersive()
         v.show(item)
-        s.scene.mainPanelEntity.size = FloatSize2d(1.25f, 0.26f)      // compact control bar + look-around pad while immersed
+        panel.size = FloatSize2d(1.25f, 0.26f)      // compact control bar + look-around pad while immersed
+        // move the bar below the line of sight and tilt it up toward the viewer, so the 360 scene ahead stays clear
+        gridPanelPose?.let { g ->
+            panel.setPose(Pose(g.translation + Vector3(0f, -0.55f, 0.15f), g.rotation * Quaternion.fromAxisAngle(Vector3.Right, -30f)))
+        }
     }
+
+    fun hidePanel() { session?.scene?.mainPanelEntity?.setEnabled(false); panelHidden = true }
+    fun showPanel() { session?.scene?.mainPanelEntity?.setEnabled(true); panelHidden = false }
 
     private fun close() {
         viewer?.exitImmersive()
         val s = session ?: return
+        showPanel()
         gridPanelSize?.let { s.scene.mainPanelEntity.size = it }
+        gridPanelPose?.let { s.scene.mainPanelEntity.setPose(it) }
     }
 
     override fun onDestroy() {
@@ -136,6 +152,7 @@ enum class RepeatMode { ONE, ALL }
 private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
                 rotate: (Float, Float) -> Unit, resetView: () -> Unit,
                 onTurn: (Float) -> Unit, onLevel: () -> Unit, onKeepLevel: (Boolean) -> Unit,
+                onHide: () -> Unit, panelHidden: Boolean, onShowPanel: () -> Unit,
                 onRefresh: () -> Unit, onAddFolder: () -> Unit, onAskPerm: () -> Unit) {
     var cat by remember { mutableStateOf("all") }
     var kind by remember { mutableStateOf<Item.Kind?>(null) }
@@ -146,16 +163,20 @@ private fun App(items: List<Item>, status: String?, scanning: Boolean, open: (It
     val shown = items.filter { (cat == "all" || it.category == cat) && (kind == null || it.kind == kind) }
 
     val idx = current
-    // 전체 반복: advance after dwellSec unless paused; restarts whenever the item, mode, dwell or pause state changes
+    // 전체 반복: count down dwellSec (shown on the bar), then the next item, wrapping around; restarts on item/mode/dwell/pause change
+    var remain by remember { mutableStateOf(0) }
     LaunchedEffect(idx, mode, dwellSec, paused) {
+        remain = dwellSec
         if (idx != null && mode == RepeatMode.ALL && !paused && shown.isNotEmpty()) {
-            kotlinx.coroutines.delay(dwellSec * 1000L)
-            val n = (idx + 1) % shown.size; current = n; open(shown[n])
+            while (remain > 0) { kotlinx.coroutines.delay(1000L); remain -= 1 }
+            val n = (idx + 1) % shown.size
+            current = n; open(shown[n])
+            if (n == idx) remain = dwellSec             // a single item: just keep it on
         }
     }
     if (idx != null && idx in shown.indices) {
-        BackHandler { current = null; paused = false; close() }
-        ControlBar(shown[idx], idx, shown.size, mode, dwellSec, paused,
+        BackHandler { if (panelHidden) onShowPanel() else { current = null; paused = false; close() } }
+        ControlBar(shown[idx], idx, shown.size, mode, dwellSec, paused, remain, onHide,
             onPrev = { val n = (idx - 1 + shown.size) % shown.size; current = n; open(shown[n]) },
             onNext = { val n = (idx + 1) % shown.size; current = n; open(shown[n]) },
             onPause = { paused = !paused; pause() },
@@ -218,7 +239,7 @@ private fun Card(item: Item, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean,
+private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean, remain: Int, onHide: () -> Unit,
                        onPrev: () -> Unit, onNext: () -> Unit, onPause: () -> Unit, onMode: () -> Unit, onDwell: () -> Unit,
                        rotate: (Float, Float) -> Unit, resetView: () -> Unit, onTurn: (Float) -> Unit, onLevel: () -> Unit,
                        onKeepLevel: (Boolean) -> Unit, onBack: () -> Unit) {
@@ -226,9 +247,14 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedButton(onBack) { Text("✕ 목록") }
+            OutlinedButton(onHide) { Text("👁 창 숨기기") }
             Column(Modifier.weight(1f)) {
                 Text(item.title, color = Color.White, fontSize = 18.sp)
-                Text("${idx + 1} / $total", color = Color(0xFFB0BEC5), fontSize = 13.sp)
+                Text("${idx + 1} / $total · " + when {
+                    mode == RepeatMode.ONE -> "🔂 이 장면을 계속 반복"
+                    paused -> "⏸ 일시정지"
+                    else -> "🔁 다음 장면까지 ${remain}초"
+                }, color = Color(0xFFB0BEC5), fontSize = 13.sp)
             }
             Button(onPrev) { Text("◀ 이전") }
             Button(onPause) { Text(if (paused) "▶ 재생" else "⏸ 일시정지") }
@@ -243,7 +269,7 @@ private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwell
                 .border(1.dp, Color(0xFF37474F), RoundedCornerShape(12.dp))
                 .pointerInput(Unit) { detectDragGestures { change, drag -> change.consume(); rotate(-drag.x * 0.25f, -drag.y * 0.25f) } },
                 contentAlignment = Alignment.Center) {
-                Text("✋ 집어서 어느 방향(대각선 포함)으로든 끌면 장면이 따라 돕니다 · 360° 화면을 직접 집어도 됨", color = Color(0xFFB0BEC5), fontSize = 14.sp)
+                Text("✋ 집어서 어느 방향으로든 끌면 장면이 돕니다 · 창을 숨긴 뒤에는 360° 화면을 한 번 집으면 창이 다시 나타납니다", color = Color(0xFFB0BEC5), fontSize = 14.sp)
             }
             OutlinedButton({ onTurn(30f) }) { Text("30° ↻") }
             OutlinedButton(resetView) { Text("⌂ 정면") }

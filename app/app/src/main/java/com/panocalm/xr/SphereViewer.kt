@@ -45,6 +45,9 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     /** 수평 유지: after every move remove the sideways tilt (roll) seen from the front, so the horizon stays level */
     var keepLevel = false
     private var dragFrom: Vector3? = null
+    private var dragStart: Vector3? = null
+    /** a pinch on the 360 scene without dragging (used to bring the hidden control panel back) */
+    var onTap: () -> Unit = {}
 
     /** dYaw: degrees about the vertical axis (+ turns the view right), dPitch: degrees about the left-right axis (+ moves the scene up).
      *  Both at once give a single diagonal rotation. */
@@ -83,7 +86,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     /** pinch on the sphere and drag in any direction: the point under the hand follows the hand (grab-and-turn). */
     private fun onSphereInput(ev: InputEvent) {
         when (ev.action) {
-            InputEvent.Action.DOWN -> dragFrom = ev.direction.toNormalized()
+            InputEvent.Action.DOWN -> { dragFrom = ev.direction.toNormalized(); dragStart = dragFrom }
             InputEvent.Action.MOVE -> {
                 val a = dragFrom ?: return
                 val b = ev.direction.toNormalized()
@@ -96,7 +99,12 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                 }
                 dragFrom = b
             }
-            InputEvent.Action.UP, InputEvent.Action.CANCEL -> dragFrom = null
+            InputEvent.Action.UP -> {
+                val a = dragStart; val b = ev.direction.toNormalized()
+                if (a != null && (a dot b) > 0.9995f) onTap()          // moved less than ~1.8 degrees: a tap
+                dragFrom = null; dragStart = null
+            }
+            InputEvent.Action.CANCEL -> { dragFrom = null; dragStart = null }
         }
     }
 
@@ -138,6 +146,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                 p.setVideoSurface(e.getSurface())
                 p.setMediaItem(MediaItem.fromUri(item.uri))
                 p.addListener(object : Player.Listener {
+                    override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED) { p.seekTo(0); p.play() } }
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         onError("재생 오류: ${error.errorCodeName}")
                     }
@@ -150,6 +159,9 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                     val p = ExoPlayer.Builder(ctx).build()
                     p.repeatMode = Player.REPEAT_MODE_ONE
                     p.setMediaItem(MediaItem.fromUri(a))
+                    p.addListener(object : Player.Listener {
+                        override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED) { p.seekTo(0); p.play() } }
+                    })
                     p.prepare(); p.play()
                     player = p
                 }
