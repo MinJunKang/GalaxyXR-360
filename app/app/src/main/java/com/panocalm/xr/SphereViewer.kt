@@ -51,6 +51,10 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     private var ambFile: File? = null
     private var userPaused = false
     private var watchdog: Job? = null
+    private var videoUri: Uri? = null
+    private var videoLoops = 0
+    private var lastPos = -1L
+    private var stuckMs = 0L
     private var startedAt = 0L
     private var recoveries = 0
     /** one line for the control bar: is the sound/video running, for how long, how often it had to be restarted */
@@ -154,26 +158,10 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
         entity = e
         view = Quaternion.Identity; applyView()   // every item starts facing its front
         try { e.addComponent(InteractableComponent.create(session) { ev -> onSphereInput(ev) }) } catch (t: Throwable) { /* drag pad on the panel still works */ }
-        userPaused = false; recoveries = 0; startedAt = System.currentTimeMillis()
+        userPaused = false; recoveries = 0; videoLoops = 0; startedAt = System.currentTimeMillis()
         startWatchdog()
         when (item.kind) {
-            Item.Kind.VIDEO -> {
-                val rf = DefaultRenderersFactory(ctx).setEnableDecoderFallback(true)
-                val p = ExoPlayer.Builder(ctx, rf).build()
-                p.repeatMode = Player.REPEAT_MODE_ONE
-                p.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
-                p.setVideoSurface(e.getSurface())
-                p.setMediaItem(MediaItem.fromUri(item.uri))
-                p.addListener(object : Player.Listener {
-                    override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED) { p.seekTo(0); p.play() } }
-                    override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                        onError("재생 오류: ${error.errorCodeName}")
-                    }
-                })
-                p.setWakeMode(C.WAKE_MODE_LOCAL)
-                p.prepare(); p.play()
-                player = p
-            }
+            Item.Kind.VIDEO -> { videoUri = item.uri; startVideo(e, item.uri) }
             Item.Kind.PHOTO -> {
                 item.audio?.let { a ->                 // looping ambience while the photo is shown
                     scope.launch {
@@ -212,6 +200,30 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
         amb?.let { if (userPaused) it.pause() else it.resume() }
     }
 
+    /** ExoPlayer straight into the sphere surface, looping. A loop is counted for the status line; if playback stops moving
+     *  (seen on the headset after the first pass), the watchdog first seeks back to 0, and on the next stall rebuilds the player. */
+    private fun startVideo(e: SurfaceEntity, uri: Uri) {
+        player?.release()
+        val rf = DefaultRenderersFactory(ctx).setEnableDecoderFallback(true)
+        val p = ExoPlayer.Builder(ctx, rf).build()
+        p.repeatMode = Player.REPEAT_MODE_ONE
+        p.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+        p.setVideoSurface(e.getSurface())
+        p.setMediaItem(MediaItem.fromUri(uri))
+        p.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) videoLoops++
+            }
+            override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED && !userPaused) { videoLoops++; p.seekTo(0); p.play() } }
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                onPlayInfo("재생 오류: ${error.errorCodeName} → 다시 시작"); stuckMs = 10_000L    // let the watchdog rebuild now
+            }
+        })
+        p.setWakeMode(C.WAKE_MODE_LOCAL)
+        p.prepare(); p.play()
+        player = p; lastPos = -1L; stuckMs = 0L
+    }
+
     /** copies the (small) sound file into the app cache once, so looping never depends on the Downloads provider */
     private fun cacheAudio(u: Uri): File? = try {
         val dir = File(ctx.cacheDir, "audio").apply { mkdirs() }
@@ -232,16 +244,21 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
                 if (entity == null) break
                 val p = player; val m = amb
                 if (!userPaused) {
-                    if (p != null && !p.isPlaying && p.playbackState != Player.STATE_BUFFERING) {
-                        recoveries++
-                        if (p.playbackState == Player.STATE_IDLE) p.prepare()
-                        if (p.playbackState == Player.STATE_ENDED) p.seekTo(0)
-                        p.play()
+                    if (p != null) {
+                        val pos = p.currentPosition
+                        stuckMs = if (pos == lastPos || !p.isPlaying) stuckMs + 2000 else 0
+                        lastPos = pos
+                        if (stuckMs >= 4000) {                       // not moving for 4 s, whatever the state says
+                            recoveries++; stuckMs = 0
+                            val e = entity; val u = videoUri
+                            if (recoveries % 2 == 0 && e != null && u != null) startVideo(e, u)
+                            else { if (p.playbackState == Player.STATE_IDLE) p.prepare(); p.seekTo(0); p.play() }
+                        }
                     }
                     if (m != null && !m.isPlaying) { recoveries++; m.resume() }
                 }
                 val sec = (System.currentTimeMillis() - startedAt) / 1000
-                val what = if (p != null) "▶ 영상" else if (m != null) "🔊 소리(${m.passes + 1}번째)" else ""
+                val what = if (p != null) "▶ 영상(${videoLoops + 1}번째)" else if (m != null) "🔊 소리(${m.passes + 1}번째)" else ""
                 if (what.isNotEmpty()) onPlayInfo("$what " + (if (userPaused) "일시정지" else "재생 중") +
                     " · ${sec / 60}:${"%02d".format(sec % 60)}" + (if (recoveries > 0) " · 자동 재시작 ${recoveries}회" else ""))
             }

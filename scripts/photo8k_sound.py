@@ -10,7 +10,7 @@ out = Path(a.out).resolve(); out.parent.mkdir(parents=True, exist_ok=True); tmp 
 subprocess.run(['ffmpeg', '-v', 'error', '-y', '-loop', '1', '-framerate', '2', '-i', str(Path(a.photo).resolve()),
                 '-stream_loop', '-1', '-i', str(Path(a.audio).resolve()), '-t', str(a.seconds), '-map', '0:v', '-map', '1:a',
                 '-c:v', 'libx265', '-preset', 'medium', '-crf', '16', '-pix_fmt', 'yuv420p', '-tag:v', 'hvc1',
-                '-x265-params', 'keyint=20:min-keyint=2:level-idc=6.0:high-tier=1:log-level=error',
+                '-x265-params', 'keyint=2:min-keyint=1:level-idc=6.0:high-tier=1:log-level=error',
                 '-c:a', 'aac', '-b:a', '256k', '-movflags', '+faststart', str(tmp)], check=True)
 subprocess.run([sys.executable, '-m', 'spatialmedia', '-i', str(tmp), str(out)], cwd=ROOT / 'spatial-media', check=True, stdout=subprocess.DEVNULL)
 assert out.exists() and out.stat().st_size > 0.9 * tmp.stat().st_size; tmp.unlink()

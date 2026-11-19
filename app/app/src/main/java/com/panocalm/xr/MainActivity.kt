@@ -96,6 +96,20 @@ class MainActivity : ComponentActivity() {
                 loop.release()
             }
         }
+        // self-test for video looping without XR (adb: --es exo_test <mp4 path>): logs position and loop count
+        intent?.getStringExtra("exo_test")?.let { path ->
+            val p = androidx.media3.exoplayer.ExoPlayer.Builder(this).build()
+            var loops = 0
+            p.repeatMode = androidx.media3.common.Player.REPEAT_MODE_ONE
+            p.addListener(object : androidx.media3.common.Player.Listener {
+                override fun onMediaItemTransition(m: androidx.media3.common.MediaItem?, r: Int) { if (r == androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) loops++ }
+            })
+            p.setMediaItem(androidx.media3.common.MediaItem.fromUri(android.net.Uri.fromFile(java.io.File(path)))); p.prepare(); p.play()
+            lifecycleScope.launch {
+                repeat(45) { kotlinx.coroutines.delay(2000); android.util.Log.i("Calm360", "exo_test pos=${p.currentPosition} loops=$loops playing=${p.isPlaying} state=${p.playbackState}") }
+                p.release()
+            }
+        }
         val crash = CalmApp.crashFile(this)
         if (crash.exists()) {
             lastCrash = crash.readText().lines().take(14).joinToString("\n")

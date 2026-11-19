@@ -187,11 +187,12 @@ object Catalog {
         val id = th.keys.filter { b == it || b.startsWith(it + "_") }.maxByOrNull { it.length }
             ?: return Triple("zz_" + b, b, "etc")
         val (ko, cat) = th.getValue(id)
-        val m = Regex("_([pv])(\\d+)").find(b.removePrefix(id))
+        val m = Regex("_([pv])(\\d+)(?:_([ab]))?").find(b.removePrefix(id))
+        val variant = m?.groupValues?.getOrNull(3)?.takeIf { it.isNotEmpty() }?.let { " · ${it.uppercase()}안" } ?: ""
         val title = when {
             m == null -> ko
-            m.groupValues[1] == "p" -> "$ko 사진 ${m.groupValues[2]}"
-            else -> "$ko 영상 ${m.groupValues[2]}"
+            m.groupValues[1] == "p" -> "$ko 사진 ${m.groupValues[2]}$variant"
+            else -> "$ko 영상 ${m.groupValues[2]}$variant"
         }
         return Triple(id, title, cat)
     }
