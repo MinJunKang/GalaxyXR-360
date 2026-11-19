@@ -10,14 +10,14 @@ android {
         applicationId = "com.panocalm.xr"
         minSdk = 34
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.4"
+        versionCode = 8
+        versionName = "1.4.2"
         ndk { abiFilters += listOf("arm64-v8a") }   // Galaxy XR is arm64
     }
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("debug")
         }

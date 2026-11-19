@@ -51,6 +51,7 @@ class MainActivity : ComponentActivity() {
     private var items by mutableStateOf<List<Item>>(emptyList())
     private var status by mutableStateOf<String?>("불러오는 중…")
     private var scanning by mutableStateOf(false)
+    private var lastCrash by mutableStateOf<String?>(null)
 
     private val MEDIA_PERMS = arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_AUDIO)
     private val askMedia = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { refresh() }
@@ -69,7 +70,7 @@ class MainActivity : ComponentActivity() {
             val (list, msg) = withContext(Dispatchers.IO) { Catalog.load(this@MainActivity) }
             items = list
             val noPerm = MEDIA_PERMS.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
-            status = listOfNotNull(msg, if (noPerm) "다운로드한 파일을 자동으로 찾으려면 🔓 파일 접근 허용을 눌러 주세요." else null).joinToString("\n").ifEmpty { null }
+            status = listOfNotNull(lastCrash?.let { "⚠ 지난번 실행이 오류로 멈췄습니다 (Download 폴더의 Calm360_crash_*.txt 에 저장됨):\n$it" }, msg, if (noPerm) "다운로드한 파일을 자동으로 찾으려면 🔓 파일 접근 허용을 눌러 주세요." else null).joinToString("\n").ifEmpty { null }
             scanning = false
         }
     }
@@ -78,9 +79,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val crash = CalmApp.crashFile(this)
+        if (crash.exists()) {
+            lastCrash = crash.readText().lines().take(14).joinToString("\n")
+            crash.delete()
+        }
         if (MEDIA_PERMS.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) askMedia.launch(MEDIA_PERMS)
         lifecycleScope.launch {
-            when (val r = Session.create(this@MainActivity)) {
+            val r = try { Session.create(this@MainActivity) } catch (t: Throwable) {
+                status = "Android XR 세션 오류: ${t::class.simpleName}: ${t.message}"; return@launch
+            }
+            when (r) {
                 is SessionCreateSuccess -> {
                     session = r.session
                     viewer = SphereViewer(this@MainActivity, r.session, lifecycleScope).also { v -> v.onError = { status = it } }
