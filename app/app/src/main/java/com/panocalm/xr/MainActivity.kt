@@ -100,9 +100,11 @@ class MainActivity : ComponentActivity() {
         intent?.getStringExtra("exo_test")?.let { path ->
             val p = androidx.media3.exoplayer.ExoPlayer.Builder(this).build()
             var loops = 0
-            p.repeatMode = androidx.media3.common.Player.REPEAT_MODE_ONE
+            val manual = intent.getBooleanExtra("manual", false)
+            p.repeatMode = if (manual) androidx.media3.common.Player.REPEAT_MODE_OFF else androidx.media3.common.Player.REPEAT_MODE_ONE
             p.addListener(object : androidx.media3.common.Player.Listener {
                 override fun onMediaItemTransition(m: androidx.media3.common.MediaItem?, r: Int) { if (r == androidx.media3.common.Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) loops++ }
+                override fun onPlaybackStateChanged(st: Int) { if (manual && st == androidx.media3.common.Player.STATE_ENDED) { loops++; p.seekTo(0); p.play() } }
             })
             p.setMediaItem(androidx.media3.common.MediaItem.fromUri(android.net.Uri.fromFile(java.io.File(path)))); p.prepare(); p.play()
             lifecycleScope.launch {

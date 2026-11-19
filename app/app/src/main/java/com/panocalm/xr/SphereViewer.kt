@@ -206,11 +206,17 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
         player?.release()
         val rf = DefaultRenderersFactory(ctx).setEnableDecoderFallback(true)
         val p = ExoPlayer.Builder(ctx, rf).build()
-        p.repeatMode = Player.REPEAT_MODE_ONE
+        // looping: start with our own "seek to 0 at the end" (works for still-photo mp4s with 1 fps / long keyframe gaps, where
+        // ExoPlayer's gapless repeat stalled on the 2nd pass); switch to gapless repeat once the track is a normal >= 10 fps video
+        p.repeatMode = Player.REPEAT_MODE_OFF
         p.videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
         p.setVideoSurface(e.getSurface())
         p.setMediaItem(MediaItem.fromUri(uri))
         p.addListener(object : Player.Listener {
+            override fun onTracksChanged(tracks: androidx.media3.common.Tracks) {
+                val fps = tracks.groups.firstOrNull { it.type == C.TRACK_TYPE_VIDEO }?.getTrackFormat(0)?.frameRate ?: (p.videoFormat?.frameRate ?: -1f)
+                p.repeatMode = if (fps >= 10f) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+            }
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) videoLoops++
             }
