@@ -20,6 +20,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -58,7 +61,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF8FD3C7))) {
                 Surface(Modifier.fillMaxSize(), color = Color(0xFF101418)) {
-                    App(items, status, ::open, ::close, { viewer?.togglePause() })
+                    App(items, status, ::open, ::close, { viewer?.togglePause() }, { dx, dy -> viewer?.rotateBy(dx, dy) }, { viewer?.resetView() })
                 }
             }
         }
@@ -70,7 +73,7 @@ class MainActivity : ComponentActivity() {
         if (gridPanelSize == null) gridPanelSize = s.scene.mainPanelEntity.size
         v.enterImmersive()
         v.show(item)
-        s.scene.mainPanelEntity.size = FloatSize2d(0.9f, 0.16f)      // compact control bar while immersed
+        s.scene.mainPanelEntity.size = FloatSize2d(1.0f, 0.26f)      // compact control bar + look-around pad while immersed
     }
 
     private fun close() {
@@ -89,7 +92,8 @@ class MainActivity : ComponentActivity() {
 enum class RepeatMode { ONE, ALL }
 
 @Composable
-private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit) {
+private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close: () -> Unit, pause: () -> Unit,
+                rotate: (Float, Float) -> Unit, resetView: () -> Unit) {
     var cat by remember { mutableStateOf("all") }
     var kind by remember { mutableStateOf<Item.Kind?>(null) }
     var current by remember { mutableStateOf<Int?>(null) }
@@ -114,6 +118,7 @@ private fun App(items: List<Item>, status: String?, open: (Item) -> Unit, close:
             onPause = { paused = !paused; pause() },
             onMode = { mode = if (mode == RepeatMode.ONE) RepeatMode.ALL else RepeatMode.ONE },
             onDwell = { dwellSec = when (dwellSec) { 30 -> 60; 60 -> 180; 180 -> 300; else -> 30 } },
+            rotate = rotate, resetView = resetView,
             onBack = { current = null; paused = false; close() })
         return
     }
@@ -163,19 +168,33 @@ private fun Card(item: Item, onClick: () -> Unit) {
 
 @Composable
 private fun ControlBar(item: Item, idx: Int, total: Int, mode: RepeatMode, dwellSec: Int, paused: Boolean,
-                       onPrev: () -> Unit, onNext: () -> Unit, onPause: () -> Unit, onMode: () -> Unit, onDwell: () -> Unit, onBack: () -> Unit) {
-    Row(Modifier.fillMaxSize().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        OutlinedButton(onBack) { Text("✕ 목록") }
-        Column(Modifier.weight(1f)) {
-            Text(item.title, color = Color.White, fontSize = 18.sp)
-            Text("${idx + 1} / $total", color = Color(0xFFB0BEC5), fontSize = 13.sp)
+                       onPrev: () -> Unit, onNext: () -> Unit, onPause: () -> Unit, onMode: () -> Unit, onDwell: () -> Unit,
+                       rotate: (Float, Float) -> Unit, resetView: () -> Unit, onBack: () -> Unit) {
+    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            OutlinedButton(onBack) { Text("✕ 목록") }
+            Column(Modifier.weight(1f)) {
+                Text(item.title, color = Color.White, fontSize = 18.sp)
+                Text("${idx + 1} / $total", color = Color(0xFFB0BEC5), fontSize = 13.sp)
+            }
+            Button(onPrev) { Text("◀ 이전") }
+            Button(onPause) { Text(if (paused) "▶ 재생" else "⏸ 일시정지") }
+            Button(onNext) { Text("다음 ▶") }
+            FilterChip(mode == RepeatMode.ALL, onMode, { Text(if (mode == RepeatMode.ONE) "🔂 한 편 반복" else "🔁 전체 반복") })
+            if (mode == RepeatMode.ALL) OutlinedButton(onDwell) { Text(if (dwellSec < 60) "${dwellSec}초씩" else "${dwellSec / 60}분씩") }
         }
-        Button(onPrev) { Text("◀ 이전") }
-        Button(onPause) { Text(if (paused) "▶ 재생" else "⏸ 일시정지") }
-        Button(onNext) { Text("다음 ▶") }
-        FilterChip(mode == RepeatMode.ALL, onMode, { Text(if (mode == RepeatMode.ONE) "🔂 한 편 반복" else "🔁 전체 반복") })
-        if (mode == RepeatMode.ALL) OutlinedButton(onDwell) { Text(if (dwellSec < 60) "${dwellSec}초씩" else "${dwellSec / 60}분씩") }
+        // look-around: pinch-drag on this pad (or directly on the 360 scene) to turn the view; buttons turn in 30 degree steps
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            OutlinedButton({ rotate(-30f, 0f) }) { Text("↺ 30°") }
+            Box(Modifier.weight(1f).height(56.dp).clip(RoundedCornerShape(12.dp)).background(Color(0xFF1C2329))
+                .border(1.dp, Color(0xFF37474F), RoundedCornerShape(12.dp))
+                .pointerInput(Unit) { detectDragGestures { change, drag -> change.consume(); rotate(-drag.x * 0.25f, drag.y * 0.15f) } },
+                contentAlignment = Alignment.Center) {
+                Text("✋ 여기를 집어서 좌우·위아래로 끌면 보는 방향이 바뀝니다 (360° 화면을 직접 집어도 됨)", color = Color(0xFFB0BEC5), fontSize = 14.sp)
+            }
+            OutlinedButton({ rotate(30f, 0f) }) { Text("30° ↻") }
+            OutlinedButton(resetView) { Text("⌂ 정면") }
+        }
     }
 }
 

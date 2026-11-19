@@ -42,6 +42,7 @@ app/       Galaxy XR 재생 앱 Calm 360 (Kotlin, Jetpack XR SceneCore 1.0.0, Me
 ## 앱 Calm 360
 
 - 360° 영상·사진을 SceneCore `SurfaceEntity` 구(sphere)에 띄워 Full Space에서 재생합니다.
+- ✋ 손으로 보는 방향 조절: 360° 화면을 집고 끌기, 제어판의 드래그 패드, 30° 회전 버튼, 정면 복귀.
 - 🔂 한 편 반복 / 🔁 전체 반복(30초·1분·3분·5분 간격) / ▶ 전체 연속 재생, 분류·종류 필터.
 - 콘텐츠는 APK에 넣지 않고 `adb push`로 `/sdcard/Android/media/com.panocalm.xr/content/`에 복사합니다 (`manifest.json`은 `scripts/build_content.py`가 만듭니다).
 - 빌드: `cd app && gradle assembleRelease` (compileSdk 36, AGP 8.10.1, JDK 17). `local.properties`의 `sdk.dir`은 직접 지정하세요.

@@ -13,6 +13,10 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.InputEvent
+import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SurfaceEntity
@@ -34,6 +38,42 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
     private var player: ExoPlayer? = null
     private var job: Job? = null
     var onError: (String) -> Unit = {}
+
+    // view direction set by hand: yaw turns the sphere left/right, pitch tilts it up/down (head turning still works as usual)
+    var yawDeg = 0f; private set
+    var pitchDeg = 0f; private set
+    var onViewChanged: (Float, Float) -> Unit = { _, _ -> }
+    private var dragFrom: Vector3? = null
+
+    fun rotateBy(dYaw: Float, dPitch: Float) {
+        yawDeg = ((yawDeg + dYaw) % 360f + 360f) % 360f
+        pitchDeg = (pitchDeg + dPitch).coerceIn(-60f, 60f)
+        applyView(); onViewChanged(yawDeg, pitchDeg)
+    }
+
+    fun resetView() { yawDeg = 0f; pitchDeg = 0f; applyView(); onViewChanged(0f, 0f) }
+
+    private fun applyView() {
+        entity?.setPose(Pose(Vector3(0f, 0f, 0f), Quaternion.fromEulerAngles(pitchDeg, yawDeg, 0f)))
+    }
+
+    /** pinch on the sphere and drag: the scene follows the hand (grab-and-turn). */
+    private fun onSphereInput(ev: InputEvent) {
+        when (ev.action) {
+            InputEvent.Action.DOWN -> dragFrom = ev.direction
+            InputEvent.Action.MOVE -> {
+                val a = dragFrom ?: return
+                val b = ev.direction
+                val dYaw = Math.toDegrees(Math.atan2(b.x.toDouble(), -b.z.toDouble()) - Math.atan2(a.x.toDouble(), -a.z.toDouble())).toFloat()
+                val dPitch = Math.toDegrees(Math.asin(b.y.toDouble().coerceIn(-1.0, 1.0)) - Math.asin(a.y.toDouble().coerceIn(-1.0, 1.0))).toFloat()
+                rotateBy(-wrap(dYaw) * DRAG_GAIN, dPitch * DRAG_GAIN)
+                dragFrom = b
+            }
+            InputEvent.Action.UP, InputEvent.Action.CANCEL -> dragFrom = null
+        }
+    }
+
+    private fun wrap(d: Float): Float = if (d > 180f) d - 360f else if (d < -180f) d + 360f else d
 
     val isPlaying: Boolean get() = player?.isPlaying == true
 
@@ -61,6 +101,8 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
             parent = session.scene.activitySpace,
         )
         entity = e
+        yawDeg = 0f; pitchDeg = 0f; applyView(); onViewChanged(0f, 0f)   // every item starts facing its front
+        try { e.addComponent(InteractableComponent.create(session) { ev -> onSphereInput(ev) }) } catch (t: Throwable) { /* drag pad on the panel still works */ }
         when (item.kind) {
             Item.Kind.VIDEO -> {
                 val rf = DefaultRenderersFactory(ctx).setEnableDecoderFallback(true)
@@ -120,6 +162,7 @@ class SphereViewer(private val ctx: Context, private val session: Session, priva
 
     companion object {
         const val RADIUS_M = 20f
+        const val DRAG_GAIN = 1.5f
         /** SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE: hand passthrough back to the system. */
         val SpatialEnvironmentNoPreference: Float = androidx.xr.scenecore.SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
     }
